@@ -14,6 +14,8 @@ document.body.innerHTML = "<div id=\"app\"></div>";
 const root = createRoot(document.getElementById("app")!);
 root.render(
     <React.StrictMode>
-        <RouterProvider router={router} />
+        <main className={"font-regular"}>
+            <RouterProvider router={router} />
+        </main>
     </React.StrictMode>
 );
