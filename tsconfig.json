@@ -21,5 +21,4 @@
 
     "jsx": "react",
   },
-  "include": ["./src/types/index.d.ts"],
 }
