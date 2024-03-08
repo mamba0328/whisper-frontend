@@ -19,6 +19,7 @@ module.exports = {
             "light-danger-color": "rgba(255, 89, 90, 0.08)",
             "dark-danger-color": "hsl(359.6385542168675, 100%, 59.450980392156865%)",
             "green-color": "#5CC85E",
+            "transparent": "transparent",
 
             // Message Colors
             "message-out-background-color": "#8774e1",
@@ -63,6 +64,11 @@ module.exports = {
                 "logo-md": "80px",
                 "logo-lg": "160px",
             },
+            maxWidth: {
+                "button-sm": "75px",
+                "button-md": "150px",
+                "button-lg": "300px",
+            }
         }
     },
     plugins: []

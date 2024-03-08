@@ -6,7 +6,7 @@ import Login from "./pages/Login";
 
 export const router = createBrowserRouter([
     {
-        path: "/create-new-account",
+        path: "/create-an-account",
         element: <h1>Sign up!</h1>
     },
     {
