@@ -17,8 +17,8 @@ export const Login = () => {
                 <h1 className={"text-center text-primary-text-color text-3xl font-medium mb-[1rem]  leading-tight"}>Sign-in to Whisper</h1>
 
                 <div className={"text-center text-secondary-text-color leading-tight mb-[2rem]"}>
-                    <p>Please confirm your country code</p>
-                    <p>and enter your phone number.</p>
+                    <p>Please enter your account data</p>
+                    <p>and password to login.</p>
                 </div>
 
                 <form className={"w-full max-w-[300px] flex flex-col gap-[1rem] mb-[5px]"}>
