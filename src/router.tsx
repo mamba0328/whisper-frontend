@@ -3,11 +3,12 @@ import { createBrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import Login from "./pages/Login";
+import CreateAnAccount from "./pages/CreateAnAccount";
 
 export const router = createBrowserRouter([
     {
         path: "/create-an-account",
-        element: <h1>Sign up!</h1>
+        element: <CreateAnAccount/>
     },
     {
         path: "/log-in",
