@@ -22,8 +22,8 @@ export const Login = () => {
                 </div>
 
                 <form className={"w-full max-w-[300px] flex flex-col gap-[1rem] mb-[5px]"}>
-                    <Input legend={"Account identifier"} inputTags={{ type: "text", name: "identity_field", id: "identity_field", placeholder: "Username, email or phone number" }} />
-                    <Input legend={"Password"} inputTags={{ type: "password", name: "password", id: "password" }}/>
+                    <Input legend={"Account identifier"} type={"text"} inputTags={{ name: "identity_field", id: "identity_field", placeholder: "Username, email or phone number" }} />
+                    <Input legend={"Password"} type={"password"} inputTags={{ name: "password", id: "password", placeholder: "********" }}/>
                     <Button size={"lg"} label={"sign-in"}/>
                 </form>
 
