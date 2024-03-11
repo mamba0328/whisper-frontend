@@ -59,6 +59,9 @@ module.exports = {
             "regular": ["Roboto", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", "sans-serif"]
         },
         extend: {
+            screens:{
+                "sm": "600px",
+            },
             size: {
                 "logo-sm": "40px",
                 "logo-md": "80px",
