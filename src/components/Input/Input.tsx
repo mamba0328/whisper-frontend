@@ -1,4 +1,5 @@
 import React from "react";
+import { twMerge } from "tailwind-merge";
 
 type InputTags = {
     name?: string,
@@ -31,10 +32,9 @@ export const Input = ({ value, legend, inputTags, inputClassName, wrapperClassNa
 
     return (
         <label>
-            <fieldset className={`w-full p-[7px] pt-[2px] rounded-md border border-input-search-border-color hover:border-primary-color [&>legend]:hover:text-primary-color [&:has(input:focus)]:border-2  [&:has(input:focus)]:border-primary-color [&:has(input:focus)>legend]:font-medium relative 
-            ${wrapperClassName}`}>
+            <fieldset className={twMerge("w-full p-[7px] pt-[2px] rounded-md border border-input-search-border-color hover:border-primary-color [&>legend]:hover:text-primary-color [&:has(input:focus)]:border-2  [&:has(input:focus)]:border-primary-color [&:has(input:focus)>legend]:font-medium relative", wrapperClassName)}>
                 <legend className={"ml-[5px] text-xs text-secondary-text-color "}>{legend}</legend>
-                <input value={value} {...inputTags} className={`focus:outline-none bg-transparent w-full h-full py-[5px] px-[10px] text-primary-text-color placeholder-secondary-color caret-primary-text-color ${inputClassName} `} onChange={(event) => handleChange(event)}/>
+                <input value={value} {...inputTags} className={twMerge("focus:outline-none bg-transparent w-full h-full py-[5px] px-[10px] text-primary-text-color placeholder-secondary-color caret-primary-text-color ", inputClassName)} onChange={(event) => handleChange(event)}/>
                 {children}
             </fieldset>
         </label>

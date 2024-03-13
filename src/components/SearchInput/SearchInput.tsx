@@ -25,7 +25,7 @@ export const SearchInput = () => {
     const clearInput = () => setInputValue("");
 
     return (
-        <Input value={inputValue} onChange={handleChange} onValid={onValid} legend={""} inputTags={{ type: "text", id: "search", name: "search", placeholder: "Search", autocomplete: "off" }} wrapperClassName={`pt-0 p-0 rounded-3xl  ${pseudoBeforeStyles} ${pseudoAfterStyles}`} inputClassName={"rounded-3xl bg-input-search-background-color focus:bg-transparent py-[10px] px-[50px]"}>
+        <Input value={inputValue} onChange={handleChange} onValid={onValid} legend={""} inputTags={{ type: "text", id: "search", name: "search", placeholder: "Search", autocomplete: "off" }} wrapperClassName={`p-0 rounded-3xl  ${pseudoBeforeStyles} ${pseudoAfterStyles}`} inputClassName={"rounded-3xl bg-input-search-background-color focus:bg-transparent py-[10px] px-[50px]"}>
             { inputIsNotEmpty
                 ? <button type={"button"} onClick={clearInput}>
                     <img src={"/assets/imgs/svg/x_icon.svg"} className={"absolute max-w-[15px] top-1/2 -translate-y-1/2 right-[20px]"}/>
