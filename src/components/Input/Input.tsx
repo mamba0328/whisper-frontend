@@ -6,7 +6,7 @@ type InputTags = {
     id: string
     placeholder?: string,
     type: string,
-    autocomplete?: "off",
+    autoComplete?: "off",
 }
 
 type Props = {
