@@ -2,7 +2,8 @@ import { post, get } from "../AxiosMethodsService/AxiosMethodsService";
 
 import { CHATS, SIGN_IN, SIGN_OUT, SIGN_UP } from "./consts/UserRequestRoutes";
 
-import { SignInPayload, UserPayload, User, Chat } from "../../types/types";
+import { SignInPayload, UserPayload, User, Chat, AxiosQuery } from "../../types/types";
+import { AxiosRequestConfig } from "axios";
 
 
 export const signIn = async (payload:SignInPayload):Promise<string | null> => {
@@ -28,8 +29,8 @@ export const signOut = async ():Promise<boolean | undefined> => {
 };
 
 
-export const getUsersChats = async ():Promise<Array<Chat>> => {
-    const res = await get(CHATS);
+export const getUsersChats = async (params:AxiosQuery):Promise<Array<Chat>> => {
+    const res = await get(CHATS, { params });
 
     const data:Array<Chat> = res.data;
 

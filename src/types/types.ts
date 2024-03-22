@@ -44,6 +44,7 @@ export type MessagePayload = {
 }
 
 export type Message = {
+    _id?: string,
     chat_id: string,
     user_id: string,
 
@@ -67,9 +68,16 @@ export type Chat= {
     chat_users: User[],
     is_group_chat?:boolean,
     status: "active" | "deleted",
+    chat_messages?: Array<Message>
 }
 
 export type SignInPayload = {
     identity_field: string,
     password: string,
+}
+
+export type AxiosQuery = {
+    limit?: number,
+    skip?: number,
+    chat_users?: string,
 }

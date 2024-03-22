@@ -31,7 +31,8 @@
         "@stylistic/js/padded-blocks": "off",
         "@stylistic/js/object-property-newline": "off",
         "@stylistic/js/multiline-ternary": "off",
-        "@stylistic/js/array-element-newline": "off"
+        "@stylistic/js/array-element-newline": "off",
+        "@stylistic/js/no-confusing-arrow": "off"
     },
     "overrides": [
         {

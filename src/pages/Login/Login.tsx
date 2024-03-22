@@ -10,12 +10,15 @@ import { signIn } from "../../services/UserRequestsService/UserRequestsService";
 import { SignInPayload } from "../../types/types";
 
 export const Login = () => {
-    const { currentUserId, setCurrentUserId } = useContext(CurrentUserIdContext);
+    const { setCurrentUserId } = useContext(CurrentUserIdContext);
     const navigate = useNavigate();
     const handleSignIn = async (signInPayload: SignInPayload) => {
         try {
             const signedInUserId = await signIn(signInPayload);
+
+            localStorage.setItem("userId", signedInUserId!);
             setCurrentUserId(signedInUserId);
+
             signedInUserId && navigate("/k");
         } catch (error) {
             console.log(error);
