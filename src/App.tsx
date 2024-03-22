@@ -1,14 +1,18 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { RouterProvider } from "react-router-dom";
 
+import { CurrentUserIdContextProvider } from "./context/CurrentUserIdContext/CurrentUserIdContext";
+
+import { router } from "./router";
+
+import "./style/index.css";
 const App = () => {
-    const navigate = useNavigate();
-    useEffect(() => {
-        navigate("/k");
-    });
     return (
-        <section>
-        </section>
+        <main className={"font-regular"}>
+            <CurrentUserIdContextProvider>
+                <RouterProvider router={router} />
+            </CurrentUserIdContextProvider>
+        </main>
     );
 };
 

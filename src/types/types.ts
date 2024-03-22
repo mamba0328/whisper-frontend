@@ -37,7 +37,6 @@ export type UserPayload = {
 }
 
 
-
 export type MessagePayload = {
     user_id: string | null,
     chat_id: string | null,
@@ -68,4 +67,9 @@ export type Chat= {
     chat_users: User[],
     is_group_chat?:boolean,
     status: "active" | "deleted",
+}
+
+export type SignInPayload = {
+    identity_field: string,
+    password: string,
 }
