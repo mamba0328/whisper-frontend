@@ -1,8 +1,8 @@
 import { post, get } from "../AxiosMethodsService/AxiosMethodsService";
 
-import { CHATS, SIGN_IN, SIGN_OUT, SIGN_UP } from "./consts/UserRequestRoutes";
+import { CHATS, SIGN_IN, SIGN_OUT, SIGN_UP, CHAT_MESSAGES } from "./consts/UserRequestRoutes";
 
-import { SignInPayload, UserPayload, User, Chat, AxiosQuery } from "../../types/types";
+import {SignInPayload, UserPayload, User, Chat, AxiosQuery, Message} from "../../types/types";
 import { AxiosRequestConfig } from "axios";
 
 
@@ -33,6 +33,14 @@ export const getUsersChats = async (params:AxiosQuery):Promise<Array<Chat>> => {
     const res = await get(CHATS, { params });
 
     const data:Array<Chat> = res.data;
+
+    return data;
+};
+
+export const getUsersChatMessages = async (params:AxiosQuery):Promise<Array<Message>> => {
+    const res = await get(CHAT_MESSAGES, { params });
+
+    const data:Array<Message> = res.data;
 
     return data;
 };

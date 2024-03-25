@@ -4,13 +4,20 @@ import { NavLink } from "react-router-dom";
 import { getFormatedDate } from "../../utils/helpers";
 
 import { SearchInput } from "../SearchInput/SearchInput";
-import { Chat } from "../../types/types";
+import { Chat, Message } from "../../types/types";
 
 
 type Props = {
     chats: Array<Chat>,
+    setSelectedChatFirstMessage: CallableFunction,
 }
-export const Sidebar = ({ chats, ...props }:Props) => {
+export const Sidebar = ({ chats, setSelectedChatFirstMessage, ...props }:Props) => {
+
+    const handleImgError = ({ currentTarget }:React.SyntheticEvent<HTMLImageElement>) => {
+        currentTarget.onerror = null; // prevents looping
+        currentTarget.src = "/assets/imgs/svg/user.svg";
+    };
+
 
     const renderChatItem = (chats:Array<Chat>) => {
         if (!chats.length) {
@@ -23,14 +30,15 @@ export const Sidebar = ({ chats, ...props }:Props) => {
             const chatTitle = is_group_chat ? chat_name : chat_users[0]!.username;
             const chatLastMessageBody = chat_messages![0]?.body;
             const chatLastMessageCreatedAt = getFormatedDate(chat_messages![0]!.created_at!);
-            const handleImgError = ({ currentTarget }:React.SyntheticEvent<HTMLImageElement>) => {
-                currentTarget.onerror = null; // prevents looping
-                currentTarget.src = "/assets/imgs/svg/user.svg";
+
+            const handleChatSelection = () => {
+                const chatsLastMessage = chat_messages![0]!;
+                setSelectedChatFirstMessage(chatsLastMessage);
             };
 
             return (
                 <li key={chatItem._id}>
-                    <NavLink className={"flex items-center min-h-[4.5rem] py-[0.5rem] px-[5px] rounded-lg cursor-pointer hover:bg-light-filled-secondary-text-color relative"} to={`/k/${chatItem._id}`} >
+                    <NavLink className={"flex items-center min-h-[4.5rem] py-[0.5rem] px-[5px] rounded-lg cursor-pointer hover:bg-light-filled-secondary-text-color relative"} to={`/k/${chatItem._id}`} onClick={handleChatSelection}>
                         <div className={"w-[4rem] grid content-center"}>
                             <div className={"rounded-full bg-input-search-background-color size-[3.375rem]"}>
                                 <img src={chatImg} alt={"user avatar"} onError={handleImgError}/>

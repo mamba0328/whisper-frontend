@@ -6,3 +6,4 @@ export const SIGN_OUT = "/sign-out";
 export const USER = `${GLOBAL_API_PATH}/users`;
 
 export const CHATS = `${GLOBAL_API_PATH}/chats`;
+export const CHAT_MESSAGES = `${GLOBAL_API_PATH}/chat-messages`;

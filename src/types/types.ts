@@ -80,4 +80,5 @@ export type AxiosQuery = {
     limit?: number,
     skip?: number,
     chat_users?: string,
+    chat_id?:string,
 }
