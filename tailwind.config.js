@@ -61,6 +61,7 @@ module.exports = {
         extend: {
             screens:{
                 "sm": "600px",
+                "laptop": "1200px",
             },
             size: {
                 "logo-sm": "40px",

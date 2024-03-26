@@ -5,6 +5,7 @@
 :root{
     --surface-color: #212121;
     --primary-text-color: #ffffff;
+    --text-secondary-color: #aaaaaa;
 }
 
 input:-webkit-autofill,
@@ -19,4 +20,21 @@ select:-webkit-autofill:focus {
     background-color: transparent !important;
     -webkit-box-shadow: 0 0 0 30px var(--surface-color) inset !important;
     -webkit-text-fill-color: var(--primary-text-color) !important;
+}
+
+[contenteditable=true]:empty:not(:focus):before{
+    content:"Message";
+    color: var(--text-secondary-color);
+}
+
+@layer components {
+    .tail {
+        @apply after:content-[''] after:inline-block after:absolute after:bottom-0 after:border-l-[6px] after:border-b-[6px] after:border-t-[6px] after:border-r-[6px] after:border-r-transparent after:border-t-transparent after:border-message-out-background-color after:right-[-5px]
+    }
+    .tail__inverse {
+        @apply after:content-[''] after:inline-block after:absolute after:bottom-0 after:border-r-[6px] after:border-b-[6px] after:border-t-[6px] after:border-l-[6px] after:border-l-transparent after:border-t-transparent after:border-surface-color after:left-[-5px]
+    }
+    .tail__surface-color {
+        @apply tail after:border-surface-color  after:border-r-transparent after:border-t-transparent
+    }
 }

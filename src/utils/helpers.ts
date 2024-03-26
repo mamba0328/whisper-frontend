@@ -1,6 +1,6 @@
 import { DATE_DAYS, DATE_MONTHS } from "../consts/consts";
 
-export const getFormatedDate = (timestamp:string) => {
+export const getChatFormatedDate = (timestamp:string) => {
     if (!timestamp) {
         return "No timestamp provided";
     }
@@ -40,6 +40,15 @@ export const getFormatedDate = (timestamp:string) => {
         return timestampInFormat;
     }
     }
+};
+
+export const getFormatedMessageTime = (timestamp:string) => {
+    const dateFromTimestamp = new Date(timestamp);
+
+    const minutes = setPrefixZeroIfNeeded(dateFromTimestamp.getMinutes());
+    const hours = setPrefixZeroIfNeeded(dateFromTimestamp.getHours());
+
+    return `${hours}:${minutes}`;
 };
 
 const setPrefixZeroIfNeeded = (number:number) => number < 10 ? `0${number}` : number;

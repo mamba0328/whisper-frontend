@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-import { getFormatedDate } from "../../utils/helpers";
+import { getChatFormatedDate } from "../../utils/helpers";
 
 import { SearchInput } from "../SearchInput/SearchInput";
 import { Chat, Message } from "../../types/types";
@@ -29,7 +29,7 @@ export const Sidebar = ({ chats, setSelectedChatFirstMessage, ...props }:Props) 
             const chatImg = is_group_chat ? "/assets/imgs/svg/users.svg" : chat_users[0]!.user_profile_img_id;
             const chatTitle = is_group_chat ? chat_name : chat_users[0]!.username;
             const chatLastMessageBody = chat_messages![0]?.body;
-            const chatLastMessageCreatedAt = getFormatedDate(chat_messages![0]!.created_at!);
+            const chatLastMessageCreatedAt = getChatFormatedDate(chat_messages![0]!.created_at!);
 
             const handleChatSelection = () => {
                 const chatsLastMessage = chat_messages![0]!;
@@ -56,7 +56,7 @@ export const Sidebar = ({ chats, setSelectedChatFirstMessage, ...props }:Props) 
     };
 
     return (
-        <aside className={"bg-surface-color w-full max-w-full sm:min-w-[450px] sm:max-w-[450px] min-h-[100vh] "}>
+        <aside className={"bg-surface-color w-full max-w-full sm:min-w-[420px] sm:max-w-[420px] min-h-[100vh] overflow-hidden select-none"}>
             <div className={"border-b-[1px] border-b-border-color p-1"}>
                 <SearchInput/>
             </div>
