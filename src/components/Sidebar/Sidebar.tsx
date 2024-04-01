@@ -2,6 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 import { getChatFormatedDate } from "../../utils/helpers";
+import { handleProfileImgError } from "../../utils/helpers";
 
 import { SearchInput } from "../SearchInput/SearchInput";
 import { Chat, Message } from "../../types/types";
@@ -9,16 +10,9 @@ import { Chat, Message } from "../../types/types";
 
 type Props = {
     chats: Array<Chat>,
-    setSelectedChatFirstMessage: CallableFunction,
+    setSelectedChat: CallableFunction,
 }
-export const Sidebar = ({ chats, setSelectedChatFirstMessage, ...props }:Props) => {
-
-    const handleImgError = ({ currentTarget }:React.SyntheticEvent<HTMLImageElement>) => {
-        currentTarget.onerror = null; // prevents looping
-        currentTarget.src = "/assets/imgs/svg/user.svg";
-    };
-
-
+export const Sidebar = ({ chats, setSelectedChat, ...props }:Props) => {
     const renderChatItem = (chats:Array<Chat>) => {
         if (!chats.length) {
             return;
@@ -29,11 +23,10 @@ export const Sidebar = ({ chats, setSelectedChatFirstMessage, ...props }:Props) 
             const chatImg = is_group_chat ? "/assets/imgs/svg/users.svg" : chat_users[0]!.user_profile_img_id;
             const chatTitle = is_group_chat ? chat_name : chat_users[0]!.username;
             const chatLastMessageBody = chat_messages![0]?.body;
-            const chatLastMessageCreatedAt = getChatFormatedDate(chat_messages![0]!.created_at!);
+            const chatLastMessageCreatedAt = chat_messages?.[0] ? getChatFormatedDate(chat_messages[0].created_at!) : "";
 
             const handleChatSelection = () => {
-                const chatsLastMessage = chat_messages![0]!;
-                setSelectedChatFirstMessage(chatsLastMessage);
+                setSelectedChat(chatItem);
             };
 
             return (
@@ -41,7 +34,7 @@ export const Sidebar = ({ chats, setSelectedChatFirstMessage, ...props }:Props) 
                     <NavLink className={"flex items-center min-h-[4.5rem] py-[0.5rem] px-[5px] rounded-lg cursor-pointer hover:bg-light-filled-secondary-text-color relative"} to={`/k/${chatItem._id}`} onClick={handleChatSelection}>
                         <div className={"w-[4rem] grid content-center"}>
                             <div className={"rounded-full bg-input-search-background-color size-[3.375rem]"}>
-                                <img src={chatImg} alt={"user avatar"} onError={handleImgError}/>
+                                <img src={chatImg} alt={"user avatar"} onError={handleProfileImgError}/>
                             </div>
                         </div>
                         <div>
@@ -57,7 +50,7 @@ export const Sidebar = ({ chats, setSelectedChatFirstMessage, ...props }:Props) 
 
     return (
         <aside className={"bg-surface-color w-full max-w-full sm:min-w-[420px] sm:max-w-[420px] min-h-[100vh] overflow-hidden select-none"}>
-            <div className={"border-b-[1px] border-b-border-color p-1"}>
+            <div className={"p-1"}>
                 <SearchInput/>
             </div>
             <nav className={"p-1"}>

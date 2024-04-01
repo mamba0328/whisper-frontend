@@ -1,28 +1,43 @@
 import React, { useState, useEffect, useContext } from "react";
+import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/CurrentUserIdContext";
 
 import { TopNav } from "../TopNav/TopNav";
 import { ChatMessages } from "../ChatMessages/ChatMessages";
 import { NewMessageForm } from "../NewMessageForm/NewMessageForm";
 
-import { getUsersChatMessages } from "../../services/UserRequestsService/UserRequestsService";
+import { createNewMessage, getUsersChatMessages } from "../../services/UserRequestsService/UserRequestsService";
 
 
-import { Message } from "../../types/types";
-import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/CurrentUserIdContext";
+import { Chat, User, MessagePayload } from "../../types/types";
 
 type Props = {
     chatId: string | undefined,
-    firstMessage: Message,
+    selectedChat: Chat,
 }
 
-export function ChatWindow ({ chatId, firstMessage } : Props) {
+export function ChatWindow ({ chatId, selectedChat } : Props) {
+    const { chat_messages, chat_users } = selectedChat;
+
     const { currentUserId } = useContext(CurrentUserIdContext);
-    const [messages, setMessages] = useState([firstMessage]);
+
+    const [pendingMessages, setPendingMessages] = useState([] as MessagePayload[]);
+    const [messages, setMessages] = useState(chat_messages);
+    const [contact, setContact] = useState({} as User);
 
     useEffect(() => {
         void getSetChatMessages();
     }, [chatId]);
 
+    useEffect(() => {
+        getSetContact();
+    }, [selectedChat]);
+
+    const getSetContact = () => {
+        if (selectedChat.chat_users) {
+            const contact = chat_users.find((user) => user._id !== currentUserId)!;
+            return setContact(contact);
+        }
+    };
     const getSetChatMessages = async () => {
         if (!chatId) {
             return;
@@ -30,6 +45,29 @@ export function ChatWindow ({ chatId, firstMessage } : Props) {
         try {
             const chatMessages = await getUsersChatMessages({ chat_id: chatId });
             setMessages(chatMessages);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    const handleSubmit = async (messageBody:string):Promise<void> => {
+        try {
+            if (!messageBody.trim().length) {
+                return console.log("No empty messages allowed");
+            }
+
+            if (!chatId || !currentUserId) {
+                return console.log("Some key value is missing to send message");
+            }
+
+            const messagePayload:MessagePayload = { body: messageBody, chat_id: chatId, user_id: currentUserId };
+
+            setPendingMessages([messagePayload]);
+
+            const response = await createNewMessage(messagePayload);
+
+            setPendingMessages((messages) => messages.filter((item) => JSON.stringify(item) !== JSON.stringify(messagePayload)));
+            setMessages((messages) => messages?.length ? [response, ...messages] : [response]);
+
         } catch (error) {
             console.log(error);
         }
@@ -46,10 +84,10 @@ export function ChatWindow ({ chatId, firstMessage } : Props) {
     }
 
     return (
-        <section className={"hidden sm:flex flex-col items-center justify-start place-content-center bg-dark-message-background-color border border-b-dark-message-background-color w-full overflow-hidden"}>
-            <TopNav/>
-            <ChatMessages currentUserId={currentUserId} messages={messages}/>
-            <NewMessageForm chatId={chatId} currentUserId={currentUserId}/>
+        <section className={"hidden sm:flex flex-col items-center justify-start place-content-center bg-gradient-to-tl from-dark-message-background-color to-secondary-color from-10% border border-b-dark-message-background-color w-full overflow-hidden"}>
+            <TopNav contact={contact}/>
+            <ChatMessages currentUserId={currentUserId} messages={messages} pendingMessages={pendingMessages}/>
+            <NewMessageForm chatId={chatId} currentUserId={currentUserId} handleSubmit={handleSubmit}/>
         </section>
     );
 }

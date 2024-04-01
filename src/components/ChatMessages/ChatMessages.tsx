@@ -1,22 +1,32 @@
 import React from "react";
 
 import { getFormatedMessageTime } from "../../utils/helpers";
-import { Message } from "../../types/types";
+import { Message, MessagePayload } from "../../types/types";
 
 type Props = {
-    messages: Array<Message>,
+    pendingMessages: Array<MessagePayload>
+    messages: Array<Message> | undefined,
     currentUserId: string | null,
 }
-export const ChatMessages = ({ messages, currentUserId }:Props) => {
+export const ChatMessages = ({ messages, currentUserId, pendingMessages }:Props) => {
     const renderMessages = () => {
+        if (!messages || !messages.length) {
+            return <ul className={"flex flex-grow flex-col-reverse max-h-[85vh] w-full max-w-[650px] p-[5px]"}></ul>;
+        }
 
-        return <ul className={"flex flex-grow flex-col-reverse max-h-[85vh] w-full max-w-[650px]  p-[5px]"}>
+        return <ul className={"flex flex-grow flex-col-reverse max-h-[82vh] w-full max-w-[650px] p-[5px] overflow-y-auto"}>
+            {pendingMessages.map((message, index) => {
+                return <li key={index} className={`tail rounded-br-none self-end bg-secondary-color text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] 
+                relative pr-[40px] mb-[5px]`}>
+                    {message.body}
+                </li>;
+            })}
             {messages.map((message, index) => {
                 const prevMessage = messages[index - 1];
                 const nextMessage = messages[index + 1];
                 const messageStyles = getMessageStyles(message, prevMessage, nextMessage);
 
-                const formatedTime = getFormatedMessageTime(message.created_at!);
+                const formatedTime = message ? getFormatedMessageTime(message.created_at!) : "";
 
                 return <li key={message._id || index} className={`text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] 
                 relative ${messageStyles} pr-[40px]`}>

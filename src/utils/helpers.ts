@@ -1,4 +1,5 @@
 import { DATE_DAYS, DATE_MONTHS } from "../consts/consts";
+import React from "react";
 
 export const getChatFormatedDate = (timestamp:string) => {
     if (!timestamp) {
@@ -43,6 +44,10 @@ export const getChatFormatedDate = (timestamp:string) => {
 };
 
 export const getFormatedMessageTime = (timestamp:string) => {
+    if (!timestamp) {
+        return "";
+    }
+
     const dateFromTimestamp = new Date(timestamp);
 
     const minutes = setPrefixZeroIfNeeded(dateFromTimestamp.getMinutes());
@@ -52,3 +57,9 @@ export const getFormatedMessageTime = (timestamp:string) => {
 };
 
 const setPrefixZeroIfNeeded = (number:number) => number < 10 ? `0${number}` : number;
+
+export const handleProfileImgError = ({ currentTarget }:React.SyntheticEvent<HTMLImageElement>) => {
+    currentTarget.onerror = null; // prevents looping
+    currentTarget.src = "/assets/imgs/svg/user.svg";
+};
+

@@ -2,3 +2,5 @@
 /.idea
 .env
 /public/main*
+
+/todo.md

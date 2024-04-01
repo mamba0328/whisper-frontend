@@ -14,7 +14,7 @@ export const Home = () => {
     const { currentUserId } = useContext(CurrentUserIdContext);
 
     const [chats, setChats] = useState([] as Array<Chat>);
-    const [selectedChatFirstMessage, setSelectedChatFirstMessage] = useState({} as Message);
+    const [selectedChat, setSelectedChat] = useState({} as Chat);
 
     const getSetChats = async () => {
         try {
@@ -25,14 +25,25 @@ export const Home = () => {
         }
     };
 
+    const getSetSelectedChat = () => {
+        if (chatId) {
+            const selectedChat = chats.find((chat) => chat._id === chatId);
+            selectedChat && setSelectedChat(selectedChat);
+        }
+    };
+
     useEffect(() => {
         void getSetChats();
     }, []);
 
+    useEffect(() => {
+        void getSetSelectedChat();
+    }, [chatId, chats]);
+
     return (
         <div className={"flex"}>
-            <Sidebar chats={chats} setSelectedChatFirstMessage={setSelectedChatFirstMessage}/>
-            <ChatWindow chatId={chatId} firstMessage={selectedChatFirstMessage}/>
+            <Sidebar chats={chats} setSelectedChat={setSelectedChat}/>
+            <ChatWindow chatId={chatId} selectedChat={selectedChat}/>
         </div>
     );
 };
