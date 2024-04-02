@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/CurrentUserIdContext";
 
+import { Popup } from "../Popup/Popup";
 import { TopNav } from "../TopNav/TopNav";
 import { ChatMessages } from "../ChatMessages/ChatMessages";
 import { NewMessageForm } from "../NewMessageForm/NewMessageForm";
@@ -23,6 +24,8 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
     const [pendingMessages, setPendingMessages] = useState([] as MessagePayload[]);
     const [messages, setMessages] = useState(chat_messages);
     const [contact, setContact] = useState({} as User);
+    const [actionPopupIsOpen, setActionPopupIsOpen] = useState(false);
+    const [actionPopupPosition, setActionPopupPosition] = useState({ top: "", left: "" });
 
     useEffect(() => {
         void getSetChatMessages();
@@ -49,7 +52,7 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
             console.log(error);
         }
     };
-    const handleSubmit = async (messageBody:string):Promise<void> => {
+    const handleSendMessage = async (messageBody:string):Promise<void> => {
         try {
             if (!messageBody.trim().length) {
                 return console.log("No empty messages allowed");
@@ -73,6 +76,19 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
         }
     };
 
+    const renderActionPopup = () => {
+        return (
+            <Popup position={actionPopupPosition} onClose={() => setActionPopupIsOpen(false)}>
+                <h1>HELLO!</h1>
+            </Popup>
+        );
+    };
+
+    const openActionPopup = (e:React.MouseEvent) => {
+        setActionPopupPosition({ top: `${e.clientY}px`, left: `${e.clientX}px` });
+        setActionPopupIsOpen(true);
+    };
+
     if (!chatId) {
         return (
             <section className={"hidden sm:grid place-content-center bg-dark-message-background-color border border-b-dark-message-background-color w-full "}>
@@ -85,9 +101,10 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
 
     return (
         <section className={"hidden sm:flex flex-col items-center justify-start place-content-center bg-gradient-to-tl from-dark-message-background-color to-secondary-color from-10% border border-b-dark-message-background-color w-full overflow-hidden"}>
+            {actionPopupIsOpen && renderActionPopup()}
             <TopNav contact={contact}/>
-            <ChatMessages currentUserId={currentUserId} messages={messages} pendingMessages={pendingMessages}/>
-            <NewMessageForm chatId={chatId} currentUserId={currentUserId} handleSubmit={handleSubmit}/>
+            <ChatMessages currentUserId={currentUserId} messages={messages} pendingMessages={pendingMessages} handleOnRightClick={openActionPopup}/>
+            <NewMessageForm handleSendMessage={handleSendMessage}/>
         </section>
     );
 }
