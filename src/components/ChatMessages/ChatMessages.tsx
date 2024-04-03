@@ -7,14 +7,14 @@ type Props = {
     pendingMessages: Array<MessagePayload>
     messages: Array<Message> | undefined,
     currentUserId: string | null,
-    handleOnRightClick: (e:React.MouseEvent) => void,
+    handleOnRightClick: (e:React.MouseEvent, message:Message) => void,
 }
 export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleOnRightClick }:Props) => {
 
 
-    const handleOnContextMenu = (e:React.MouseEvent) => {
+    const handleOnContextMenu = (e:React.MouseEvent, message:Message) => {
         e.preventDefault();
-        handleOnRightClick(e);
+        handleOnRightClick(e, message);
     };
     const renderMessages = () => {
         if (!messages || !messages.length) {
@@ -36,7 +36,7 @@ export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleO
                 const formatedTime = message ? getFormatedMessageTime(message.created_at!) : "";
 
                 return <li key={message._id || index} className={`text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] 
-                relative ${messageStyles} pr-[40px]`} onContextMenu={(e) => handleOnContextMenu(e)}>
+                relative ${messageStyles} pr-[40px]`} onContextMenu={(e) => handleOnContextMenu(e, message)}>
                     {message.body}
                     <span className={"absolute right-[6px] bottom-[3px] text-xs text-primary-text-color font-light opacity-80 "}>{formatedTime}</span>
                 </li>;

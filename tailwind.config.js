@@ -64,6 +64,7 @@ module.exports = {
                 "laptop": "1200px",
             },
             size: {
+                "icon": "20px",
                 "logo-sm": "40px",
                 "logo-md": "80px",
                 "logo-lg": "160px",

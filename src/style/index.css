@@ -37,4 +37,7 @@ select:-webkit-autofill:focus {
     .tail__surface-color {
         @apply tail after:border-surface-color  after:border-r-transparent after:border-t-transparent
     }
+    .menu-item {
+      @apply py-[0.5rem] px-[5px] rounded-lg cursor-pointer hover:bg-light-filled-secondary-text-color relative
+    }
 }

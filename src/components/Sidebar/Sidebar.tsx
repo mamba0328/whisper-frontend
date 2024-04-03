@@ -31,7 +31,7 @@ export const Sidebar = ({ chats, setSelectedChat, ...props }:Props) => {
 
             return (
                 <li key={chatItem._id}>
-                    <NavLink className={"flex items-center min-h-[4.5rem] py-[0.5rem] px-[5px] rounded-lg cursor-pointer hover:bg-light-filled-secondary-text-color relative"} to={`/k/${chatItem._id}`} onClick={handleChatSelection}>
+                    <NavLink className={"flex items-center min-h-[4.5rem] menu-item"} to={`/k/${chatItem._id}`} onClick={handleChatSelection}>
                         <div className={"w-[4rem] grid content-center"}>
                             <div className={"rounded-full bg-input-search-background-color size-[3.375rem]"}>
                                 <img src={chatImg} alt={"user avatar"} onError={handleProfileImgError}/>

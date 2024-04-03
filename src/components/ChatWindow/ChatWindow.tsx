@@ -9,7 +9,9 @@ import { NewMessageForm } from "../NewMessageForm/NewMessageForm";
 import { createNewMessage, getUsersChatMessages } from "../../services/UserRequestsService/UserRequestsService";
 
 
-import { Chat, User, MessagePayload } from "../../types/types";
+import { Chat, User, MessagePayload, Message } from "../../types/types";
+
+type MessageAtAction = Message | null;
 
 type Props = {
     chatId: string | undefined,
@@ -24,8 +26,10 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
     const [pendingMessages, setPendingMessages] = useState([] as MessagePayload[]);
     const [messages, setMessages] = useState(chat_messages);
     const [contact, setContact] = useState({} as User);
+
     const [actionPopupIsOpen, setActionPopupIsOpen] = useState(false);
     const [actionPopupPosition, setActionPopupPosition] = useState({ top: "", left: "" });
+    const [messageAtAction, setMessageAtAction] = useState(null as MessageAtAction);
 
     useEffect(() => {
         void getSetChatMessages();
@@ -76,17 +80,47 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
         }
     };
 
-    const renderActionPopup = () => {
-        return (
-            <Popup position={actionPopupPosition} onClose={() => setActionPopupIsOpen(false)}>
-                <h1>HELLO!</h1>
-            </Popup>
-        );
-    };
-
-    const openActionPopup = (e:React.MouseEvent) => {
+    const openActionPopup = (e:React.MouseEvent, message: Message) => {
+        setMessageAtAction(message);
         setActionPopupPosition({ top: `${e.clientY}px`, left: `${e.clientX}px` });
         setActionPopupIsOpen(true);
+    };
+
+    const closeActionPopup = () => {
+        setActionPopupIsOpen(false);
+        setMessageAtAction(null);
+    };
+
+    const handleCopyMessage = async () => {
+        await navigator.clipboard.writeText(messageAtAction?.body ?? "");
+        closeActionPopup();
+    };
+
+    const renderActionPopup = () => {
+        return (
+            <Popup position={actionPopupPosition} onClose={closeActionPopup}>
+                <ul>
+                    <li key={"edit"}>
+                        <button className={"text-primary-text-color flex gap-[20px] items-center justify-start px-1 mr-10]"}>
+                            <img src={"/assets/imgs/svg/edit.svg"} className={"size-icon"}/>
+                            <p>Edit</p>
+                        </button>
+                    </li>
+                    <li key={"copy"} onClick={() => void handleCopyMessage()}>
+                        <button className={"text-primary-text-color flex gap-[20px] items-center justify-start px-1 mr-10"}>
+                            <img src={"/assets/imgs/svg/copy.svg"} className={"size-icon"}/>
+                            <p>Copy</p>
+                        </button>
+                    </li>
+                    <li key={"delete"}>
+                        <button className={"text-dark-danger-color flex gap-[20px] items-center justify-start px-1 mr-10"}>
+                            <img src={"/assets/imgs/svg/trash-can.svg"} className={"size-icon"}/>
+                            <p>Delete</p>
+                        </button>
+                    </li>
+                </ul>
+            </Popup>
+        );
     };
 
     if (!chatId) {
