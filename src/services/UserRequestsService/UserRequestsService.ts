@@ -1,4 +1,4 @@
-import { post, get } from "../AxiosMethodsService/AxiosMethodsService";
+import { post, get, del, put } from "../AxiosMethodsService/AxiosMethodsService";
 
 import { CHATS, SIGN_IN, SIGN_OUT, SIGN_UP, CHAT_MESSAGES } from "./consts/UserRequestRoutes";
 
@@ -56,6 +56,21 @@ export const createNewMessage = async (messagePayload:MessagePayload, params?:Ax
     const res = await post(CHAT_MESSAGES, messagePayload, { params });
 
     const data:Message = res.data;
+
+    return data;
+};
+
+export const updateMessage = async (messageId:string, messageBody:string):Promise<Message> => {
+    const res = await put(`${CHAT_MESSAGES}/${messageId}`, { body: messageBody });
+
+    const data:Message = res.data;
+
+    return data;
+};
+export const deleteMessage = async (messageId:string):Promise<boolean> => {
+    const res = await del(`${CHAT_MESSAGES}/${messageId}`);
+
+    const data:boolean = res.data;
 
     return data;
 };

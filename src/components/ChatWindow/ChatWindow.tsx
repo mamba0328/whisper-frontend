@@ -6,12 +6,13 @@ import { TopNav } from "../TopNav/TopNav";
 import { ChatMessages } from "../ChatMessages/ChatMessages";
 import { NewMessageForm } from "../NewMessageForm/NewMessageForm";
 
-import { createNewMessage, getUsersChatMessages } from "../../services/UserRequestsService/UserRequestsService";
+import { createNewMessage, updateMessage, getUsersChatMessages, deleteMessage } from "../../services/UserRequestsService/UserRequestsService";
 
 
 import { Chat, User, MessagePayload, Message } from "../../types/types";
 
 type MessageAtAction = Message | null;
+type EditMessageText = Message | null;
 
 type Props = {
     chatId: string | undefined,
@@ -31,14 +32,23 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
     const [actionPopupPosition, setActionPopupPosition] = useState({ top: "", left: "" });
     const [messageAtAction, setMessageAtAction] = useState(null as MessageAtAction);
 
+    const [editMessage, setEditMessage] = useState(null as EditMessageText);
+
     useEffect(() => {
         void getSetChatMessages();
     }, [chatId]);
 
     useEffect(() => {
+        void resetState();
         getSetContact();
     }, [selectedChat]);
 
+    const resetState = () => {
+        setActionPopupIsOpen(false);
+        setActionPopupPosition({ top: "", left: "" });
+        setMessageAtAction(null);
+        setEditMessage(null);
+    };
     const getSetContact = () => {
         if (selectedChat.chat_users) {
             const contact = chat_users.find((user) => user._id !== currentUserId)!;
@@ -86,9 +96,9 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
         setActionPopupIsOpen(true);
     };
 
-    const closeActionPopup = () => {
+    const closeActionPopup = (keepMessageAtAction?:boolean) => {
         setActionPopupIsOpen(false);
-        setMessageAtAction(null);
+        !keepMessageAtAction && setMessageAtAction(null);
     };
 
     const handleCopyMessage = async () => {
@@ -96,11 +106,57 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
         closeActionPopup();
     };
 
+    const handleDeleteMessage = async () => {
+        try {
+            if (!messageAtAction) {
+                return closeActionPopup();
+            }
+            const messageId = messageAtAction._id;
+            const response = await deleteMessage(messageId!);
+            response && setMessages(messages!.filter((message) => message._id !== messageId));
+        } catch (error) {
+            console.log(error);
+        } finally {
+            closeActionPopup();
+        }
+    };
+
+    const handleEditMessage = () => {
+        setEditMessage(messageAtAction);
+        closeActionPopup(true);
+    };
+
+    const handleCancelEdit = () => {
+        setEditMessage(null);
+        setMessageAtAction(null);
+    };
+    const handleUpdateMessage = async (newMessageBody:string) => {
+        try {
+            if (!editMessage?._id) {
+                return;
+            }
+
+            const response = await updateMessage(editMessage._id, newMessageBody);
+
+            if (!response) {
+                return;
+            }
+
+            const messagesClone = [...messages!];
+            const indexOfEditedMessage = messagesClone.findIndex((message) => message._id === editMessage?._id);
+            messagesClone.splice(indexOfEditedMessage, 1, response);
+
+            setMessages(messagesClone);
+            handleCancelEdit();
+        } catch (error) {
+            console.log(error);
+        }
+    };
     const renderActionPopup = () => {
         return (
             <Popup position={actionPopupPosition} onClose={closeActionPopup}>
                 <ul>
-                    <li key={"edit"}>
+                    <li key={"edit"} onClick={() => void handleEditMessage()}>
                         <button className={"text-primary-text-color flex gap-[20px] items-center justify-start px-1 mr-10]"}>
                             <img src={"/assets/imgs/svg/edit.svg"} className={"size-icon"}/>
                             <p>Edit</p>
@@ -112,7 +168,7 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
                             <p>Copy</p>
                         </button>
                     </li>
-                    <li key={"delete"}>
+                    <li key={"delete"} onClick={() => void handleDeleteMessage()}>
                         <button className={"text-dark-danger-color flex gap-[20px] items-center justify-start px-1 mr-10"}>
                             <img src={"/assets/imgs/svg/trash-can.svg"} className={"size-icon"}/>
                             <p>Delete</p>
@@ -138,7 +194,7 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
             {actionPopupIsOpen && renderActionPopup()}
             <TopNav contact={contact}/>
             <ChatMessages currentUserId={currentUserId} messages={messages} pendingMessages={pendingMessages} handleOnRightClick={openActionPopup}/>
-            <NewMessageForm handleSendMessage={handleSendMessage}/>
+            <NewMessageForm handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit}/>
         </section>
     );
 }

@@ -1,20 +1,29 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { ActionButton } from "../ActionButton/ActionButton";
 
 type Props = {
-    value?: string,
+    value: string | null,
     handleSendMessage: CallableFunction,
+    handleUpdateMessage: CallableFunction,
+    handleCancelEdit: CallableFunction,
 }
-export const NewMessageForm = ({ value, handleSendMessage }:Props) => {
+export const NewMessageForm = ({ value, handleSendMessage, handleUpdateMessage, handleCancelEdit }:Props) => {
+    const isEditMode = !!value;
     const inputRef = useRef(null);
 
+    useEffect(() => {
+        if (inputRef.current) {
+            // @ts-ignore
+            inputRef.current.innerText = value;
+        }
+    }, [value]);
     const resetInput = () => {
         // @ts-ignore
         inputRef.current.innerText = null;
     };
     const handleSubmit = () => {
         // @ts-ignore
-        handleSendMessage(inputRef.current.innerText);
+        isEditMode ? handleUpdateMessage(inputRef.current.innerText as string) : handleSendMessage(inputRef.current.innerText as string);
         resetInput();
     };
 
@@ -28,9 +37,26 @@ export const NewMessageForm = ({ value, handleSendMessage }:Props) => {
         }
     };
 
+    const renderEditBlock = () => {
+        return (
+            <div className={"flex items-center justify-start gap-5 w-full pt-1"}>
+                <div>
+                    <img src={"/assets/imgs/svg/edit_purple.svg"} className={"size-icon"}/>
+                </div>
+                <div className={"flex-grow border-l-2 border-primary-color bg-primary-color bg-opacity-20 text-sm pl-2 rounded select-none" }>
+                    <p className={"text-primary-color"}>Editing</p>
+                    <p className={"text-secondary-text-color"}>{value?.slice(0, 80)}</p>
+                </div>
+                <button type={"button"} onClick={() => void handleCancelEdit()} className={"p-[10px] hover:bg-primary-color hover:bg-opacity-20 hover:rounded-full"}>
+                    <img src={"/assets/imgs/svg/x_icon_purple.svg"} className={"w-[15px] h-[15px]"}/>
+                </button>
+            </div>
+        );
+    };
     const renderInput = () => {
         return (
-            <div className={"flex items-center bg-surface-color px-[25px] rounded-2xl relative rounded-br-sm tail__surface-color w-full max-w-[600px] laptop:min-w-[650px] mb-[40px]"}>
+            <div className={"flex flex-col items-center bg-surface-color px-[25px] rounded-2xl relative rounded-br-sm tail__surface-color w-full max-w-[600px] laptop:min-w-[650px]"}>
+                {isEditMode ? renderEditBlock() : null}
                 <div suppressContentEditableWarning={true} ref={inputRef} contentEditable dir={"auto"} className={"bg-surface-color resize-none focus:outline-none w-full min-h-[50px] pt-[11px] pb-[9px] text-primary-text-color caret-primary-text-color max-h-[300px] overflow-y-auto"} onKeyDown={(e) => handleKeyDown(e)}>
                     {value}
                 </div>
@@ -39,7 +65,7 @@ export const NewMessageForm = ({ value, handleSendMessage }:Props) => {
     };
 
     return (
-        <form className={"w-full flex justify-center laptop:pl-[60px] gap-[10px]"} >
+        <form className={"w-full flex justify-center laptop:pl-[60px] gap-[10px] pb-[50px]"} >
             {renderInput()}
             <ActionButton onClick={handleSubmit} styles={"grid place-content-center"}>
                 <img src={"/assets/imgs/svg/paper_plane.svg"}/>
