@@ -17,9 +17,10 @@ type EditMessageText = Message | null;
 type Props = {
     chatId: string | undefined,
     selectedChat: Chat,
+    updateChatLastMessage: (message:Message) => void,
 }
 
-export function ChatWindow ({ chatId, selectedChat } : Props) {
+export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Props) {
     const { chat_messages, chat_users } = selectedChat;
 
     const { currentUserId } = useContext(CurrentUserIdContext);
@@ -42,6 +43,18 @@ export function ChatWindow ({ chatId, selectedChat } : Props) {
         void resetState();
         getSetContact();
     }, [selectedChat]);
+
+    useEffect(() => {
+        const propsLastMessage = selectedChat.chat_messages?.[0];
+        const stateLastMessage = messages?.[0];
+
+        const isNewMessage = propsLastMessage?._id !== stateLastMessage?._id;
+        const isUpdatedMessage = propsLastMessage?.body !== stateLastMessage?.body;
+
+        if (stateLastMessage && isNewMessage || isUpdatedMessage) {
+            updateChatLastMessage(stateLastMessage!);
+        }
+    }, [messages]);
 
     const resetState = () => {
         setActionPopupIsOpen(false);

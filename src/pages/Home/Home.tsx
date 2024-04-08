@@ -32,6 +32,18 @@ export const Home = () => {
         }
     };
 
+    const updateChatLastMessage = (newMessage:Message) => {
+        const indexOfChatWithUpdatedMessage = chats.findIndex((chat) => chatId ? chatId === chat._id : selectedChat._id === chat._id);
+        const chatsClone = [...chats];
+
+        if (!chatsClone[indexOfChatWithUpdatedMessage]) {
+            return;
+        }
+
+        chatsClone[indexOfChatWithUpdatedMessage]!.chat_messages = [newMessage];
+        setChats(chatsClone);
+    };
+
     useEffect(() => {
         void getSetChats();
     }, []);
@@ -43,7 +55,7 @@ export const Home = () => {
     return (
         <div className={"flex"}>
             <Sidebar chats={chats} setSelectedChat={setSelectedChat}/>
-            <ChatWindow chatId={chatId} selectedChat={selectedChat}/>
+            <ChatWindow chatId={chatId} selectedChat={selectedChat} updateChatLastMessage={updateChatLastMessage}/>
         </div>
     );
 };
