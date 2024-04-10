@@ -1,11 +1,32 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Input } from "../../components/Input/Input";
 import { PasswordInput } from "../../components/PasswordInput/PasswordInput";
 import { Button } from "../../components/Button/Button";
 
+import { signUp } from "../../services/UserRequestsService/UserRequestsService";
+
 export const CreateAnAccount = () => {
+    const navigate = useNavigate();
+    const handleSubmit = async (event:React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        // @ts-ignore
+        const { first_name, last_name, username, phone_number, email, password } = event.target;
+
+        const signUpPayload = {
+            first_name: first_name.value,
+            last_name: last_name.value,
+            username: username.value,
+            phone_number: phone_number.value,
+            email: email.value,
+            password: password.value
+        };
+
+        const response = await signUp(signUpPayload);
+        response && navigate("/log-in");
+    };
+
     return (
         <section className={"w-full h-[100vh] bg-surface-color pt-[4rem] select-none"}>
             <div className={"container mx-auto flex flex-col justify-center items-center"}>
@@ -20,7 +41,7 @@ export const CreateAnAccount = () => {
                     <p>to create an account</p>
                 </div>
 
-                <form className={"w-full grid max-w-[300px] md:max-w-[700px] md:grid-cols-2  gap-[1rem] mb-[5px]"}>
+                <form className={"w-full grid max-w-[300px] md:max-w-[700px] md:grid-cols-2  gap-[1rem] mb-[5px]"} onSubmit={(e) => void handleSubmit(e)}>
                     <div>
                         <Input legend={"First name*"} inputTags={{ type: "text", name: "first_name", id: "first_name", placeholder: "John" }} />
                         <Input legend={"Last name*"} inputTags={{ type: "text", name: "last_name", id: "last_name", placeholder: "Doe" }}/>
@@ -36,8 +57,6 @@ export const CreateAnAccount = () => {
                         <Button size={"lg"} label={"or sign-in"} invert={true}/>
                     </Link>
                 </form>
-
-
             </div>
         </section>
     );

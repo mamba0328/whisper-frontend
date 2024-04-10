@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
+
 import { NavLink } from "react-router-dom";
+import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/CurrentUserIdContext";
 
 import { getChatFormatedDate } from "../../utils/helpers";
 import { handleProfileImgError } from "../../utils/helpers";
@@ -13,6 +15,13 @@ type Props = {
     setSelectedChat: CallableFunction,
 }
 export const Sidebar = ({ chats, setSelectedChat, ...props }:Props) => {
+    const { currentUserId } = useContext(CurrentUserIdContext);
+
+    const getDynamicChatItemStlyes = (active:boolean, unread:boolean):string => {
+        const unreadStyles = "after:content-[''] after:absolute after:size-[15px] after:rounded-full after:bg-primary-color after:right-[1rem] after:top-[2.5rem]";
+        const activeStyles = "bg-primary-color [&_p]:text-primary-text-color [&_span]:text-primary-text-color hover:bg-dark-primary-color";
+        return `${active ? activeStyles : ""} ${unread ? unreadStyles : ""}`;
+    };
     const renderChatItem = (chats:Array<Chat>) => {
         if (!chats.length) {
             return;
@@ -20,18 +29,21 @@ export const Sidebar = ({ chats, setSelectedChat, ...props }:Props) => {
 
         return chats.map((chatItem) => {
             const { is_group_chat, chat_users, chat_name, chat_messages } = chatItem;
-            const chatImg = is_group_chat ? "/assets/imgs/svg/users.svg" : chat_users[0]!.user_profile_img_id;
-            const chatTitle = is_group_chat ? chat_name : chat_users[0]!.username;
-            const chatLastMessageBody = chat_messages![0]?.body;
-            const chatLastMessageCreatedAt = chat_messages?.[0] ? getChatFormatedDate(chat_messages[0].created_at!) : "";
+            const contact = chat_users.find((user) => user._id !== currentUserId);
+            const chatImg = is_group_chat ? "/assets/imgs/svg/users.svg" : contact!.user_profile_img_id ?? "/assets/imgs/svg/user.svg";
+            const chatTitle = is_group_chat ? chat_name : contact!.username;
 
+            const chatLastMessage = chat_messages![0];
+            const chatLastMessageBody = chatLastMessage?.body;
+            const chatLastMessageCreatedAt = chatLastMessage ? getChatFormatedDate(chatLastMessage.created_at!) : "";
+            const chatLastMessageIsUnread = !chatLastMessage?.message_seen_by?.length;
             const handleChatSelection = () => {
                 setSelectedChat(chatItem);
             };
 
             return (
                 <li key={chatItem._id}>
-                    <NavLink className={"flex items-center min-h-[4.5rem] menu-item"} to={`/k/${chatItem._id}`} onClick={handleChatSelection}>
+                    <NavLink className={({ isActive }) => `flex items-center min-h-[4.5rem] menu-item relative  ${getDynamicChatItemStlyes(isActive, chatLastMessageIsUnread)}`} to={`/k/${chatItem._id}`} onClick={handleChatSelection}>
                         <div className={"w-[4rem] grid content-center"}>
                             <div className={"rounded-full bg-input-search-background-color size-[3.375rem]"}>
                                 <img src={chatImg} alt={"user avatar"} onError={handleProfileImgError}/>

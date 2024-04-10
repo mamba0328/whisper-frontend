@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useRef } from "react";
 
-import { getFormatedMessageTime } from "../../utils/helpers";
+
+import ChatMessageItem from "../ChatMessageItem/ChatMessageItem";
+
 import { Message, MessagePayload } from "../../types/types";
 
 type Props = {
@@ -10,18 +12,18 @@ type Props = {
     handleOnRightClick: (e:React.MouseEvent, message:Message) => void,
 }
 export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleOnRightClick }:Props) => {
-
-
+    const messagesWrapperRef = useRef(null);
     const handleOnContextMenu = (e:React.MouseEvent, message:Message) => {
         e.preventDefault();
         handleOnRightClick(e, message);
     };
     const renderMessages = () => {
-        if (!messages || !messages.length) {
+        const noMessages = !messages?.length;
+        if (noMessages) {
             return <ul className={"flex flex-grow flex-col-reverse max-h-[85vh] w-full max-w-[650px] p-[5px]"}></ul>;
         }
 
-        return <ul className={"flex flex-grow flex-col-reverse max-h-[82vh] w-full max-w-[650px] p-[5px] overflow-y-auto"}>
+        return <ul ref={messagesWrapperRef} className={"flex flex-grow flex-col-reverse max-h-[82vh] w-full max-w-[650px] p-[5px] overflow-y-auto"}>
             {pendingMessages.map((message, index) => {
                 return <li key={index} className={`tail rounded-br-none self-end bg-secondary-color text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] 
                 relative pr-[40px] mb-[5px]`}>
@@ -33,13 +35,7 @@ export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleO
                 const nextMessage = messages[index + 1];
                 const messageStyles = getMessageStyles(message, prevMessage, nextMessage);
 
-                const formatedTime = message ? getFormatedMessageTime(message.created_at!) : "";
-
-                return <li key={message._id || index} className={`text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] 
-                relative ${messageStyles} pr-[40px]`} onContextMenu={(e) => handleOnContextMenu(e, message)}>
-                    {message.body}
-                    <span className={"absolute right-[6px] bottom-[3px] text-xs text-primary-text-color font-light opacity-80 "}>{formatedTime}</span>
-                </li>;
+                return <ChatMessageItem message={message} messageStyles={messageStyles} key={message?._id || index} handleOnRightClick={handleOnContextMenu} wrapperRef={messagesWrapperRef}/>;
             })}
         </ul>;
     };

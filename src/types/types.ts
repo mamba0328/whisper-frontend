@@ -8,7 +8,7 @@ export type Error = {
     message: string,
     status?: number,
     code?: string,
-    syscall?:string,
+    syscall?:string
 }
 
 export type User = {
@@ -43,6 +43,18 @@ export type MessagePayload = {
     body: string,
 }
 
+export type MessageSeenBy = {
+    created_at: string,
+    message_id: string,
+    user_id: string,
+    _id: string,
+}
+
+export type MessageSeenByPayload = {
+    message_id: string,
+    user_id: string,
+}
+
 export type Message = {
     _id?: string,
     chat_id: string,
@@ -52,6 +64,8 @@ export type Message = {
     status: "new" | "edited" | "deleted",
 
     message_img_id?: string,
+
+    message_seen_by?: Array<MessageSeenBy>,
 
     created_at?: string,
     updated_at?: string,

@@ -14,7 +14,7 @@ export const TopNav = ({ contact }:Props) => {
                 <ul className={"flex justify-start"}>
                     <li className={"flex gap-[1rem]"}>
                         <div className={"grid content-center rounded-full bg-input-search-background-color size-[42px]"}>
-                            <img src={contact?.user_profile_img_id} alt={"user avatar"} onError={handleProfileImgError}/>
+                            <img src={contact?.user_profile_img_id ?? "/assets/imgs/svg/user.svg"} alt={"user avatar"} onError={handleProfileImgError}/>
                         </div>
                         <div>
                             <h4 className={"text-primary-text-color font-medium text-sm"}>{contact?.username}</h4>

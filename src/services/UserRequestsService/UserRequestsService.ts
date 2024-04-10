@@ -1,8 +1,18 @@
 import { post, get, del, put } from "../AxiosMethodsService/AxiosMethodsService";
 
-import { CHATS, SIGN_IN, SIGN_OUT, SIGN_UP, CHAT_MESSAGES } from "./consts/UserRequestRoutes";
+import { CHATS, SIGN_IN, SIGN_OUT, SIGN_UP, CHAT_MESSAGES, MESSAGE_SEEN_BY} from "./consts/UserRequestRoutes";
 
-import { SignInPayload, UserPayload, User, Chat, AxiosQuery, Message, MessagePayload } from "../../types/types";
+import {
+    SignInPayload,
+    UserPayload,
+    User,
+    Chat,
+    AxiosQuery,
+    Message,
+    MessagePayload,
+    MessageSeenBy,
+    MessageSeenByPayload
+} from "../../types/types";
 import { AxiosRequestConfig } from "axios";
 
 
@@ -74,3 +84,11 @@ export const deleteMessage = async (messageId:string):Promise<boolean> => {
 
     return data;
 };
+
+export const viewMessage = async (messageViewByPayload: MessageSeenByPayload):Promise<MessageSeenBy> => {
+    const res = await post(`${MESSAGE_SEEN_BY}`, messageViewByPayload);
+
+    const data:MessageSeenBy = res.data;
+
+    return data;
+}
