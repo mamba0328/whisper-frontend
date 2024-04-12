@@ -7,7 +7,7 @@ import { ChatMessages } from "../ChatMessages/ChatMessages";
 import { NewMessageForm } from "../NewMessageForm/NewMessageForm";
 
 import { createNewMessage, updateMessage, getUsersChatMessages, deleteMessage } from "../../services/UserRequestsService/UserRequestsService";
-
+import { getArrayWithUpdatedItemByField } from "../../utils/helpers";
 
 import { Chat, User, MessagePayload, Message } from "../../types/types";
 
@@ -45,15 +45,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
     }, [selectedChat]);
 
     useEffect(() => {
-        const propsLastMessage = selectedChat.chat_messages?.[0];
-        const stateLastMessage = messages?.[0];
-
-        const isNewMessage = propsLastMessage?._id !== stateLastMessage?._id;
-        const isUpdatedMessage = propsLastMessage?.body !== stateLastMessage?.body;
-
-        if (stateLastMessage && isNewMessage || isUpdatedMessage) {
-            updateChatLastMessage(stateLastMessage!);
-        }
+        updateChatLastMessageIfChanged();
     }, [messages]);
 
     const resetState = () => {
@@ -79,6 +71,18 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
             console.log(error);
         }
     };
+
+    const updateChatLastMessageIfChanged = () => {
+        const propsLastMessage = selectedChat.chat_messages?.[0];
+        const stateLastMessage = messages?.[0];
+
+        const isNewMessage = propsLastMessage?._id !== stateLastMessage?._id;
+        const isUpdatedMessage = JSON.stringify(propsLastMessage) !== JSON.stringify(stateLastMessage);
+
+        if (stateLastMessage && isNewMessage || isUpdatedMessage) {
+            updateChatLastMessage(stateLastMessage!);
+        }
+    };
     const handleSendMessage = async (messageBody:string):Promise<void> => {
         try {
             if (!messageBody.trim().length) {
@@ -101,6 +105,11 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         } catch (error) {
             console.log(error);
         }
+    };
+
+    const updateMessagesOnViewed = (viewedMessage:Message) => {
+        const updatedMessages = getArrayWithUpdatedItemByField(messages!, viewedMessage, { _id: viewedMessage._id! });
+        setMessages(updatedMessages);
     };
 
     const openActionPopup = (e:React.MouseEvent, message: Message) => {
@@ -143,6 +152,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         setEditMessage(null);
         setMessageAtAction(null);
     };
+
     const handleUpdateMessage = async (newMessageBody:string) => {
         try {
             if (!editMessage?._id) {
@@ -155,26 +165,25 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
                 return;
             }
 
-            const messagesClone = [...messages!];
-            const indexOfEditedMessage = messagesClone.findIndex((message) => message._id === editMessage?._id);
-            messagesClone.splice(indexOfEditedMessage, 1, response);
-
-            setMessages(messagesClone);
+            const updatedArray = getArrayWithUpdatedItemByField(messages!, response, { _id: response._id! });
+            setMessages(updatedArray);
             handleCancelEdit();
         } catch (error) {
             console.log(error);
         }
     };
     const renderActionPopup = () => {
+        const messageAtActionBelongsToCurrentUser = messageAtAction?.user_id === currentUserId;
+
         return (
             <Popup position={actionPopupPosition} onClose={closeActionPopup}>
                 <ul>
-                    <li key={"edit"} onClick={() => void handleEditMessage()}>
+                    {messageAtActionBelongsToCurrentUser && <li key={"edit"} onClick={() => void handleEditMessage()}>
                         <button className={"text-primary-text-color flex gap-[20px] items-center justify-start px-1 mr-10]"}>
                             <img src={"/assets/imgs/svg/edit.svg"} className={"size-icon"}/>
                             <p>Edit</p>
                         </button>
-                    </li>
+                    </li>}
                     <li key={"copy"} onClick={() => void handleCopyMessage()}>
                         <button className={"text-primary-text-color flex gap-[20px] items-center justify-start px-1 mr-10"}>
                             <img src={"/assets/imgs/svg/copy.svg"} className={"size-icon"}/>
@@ -206,7 +215,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         <section className={"hidden sm:flex flex-col items-center justify-start place-content-center bg-gradient-to-tl from-dark-message-background-color to-secondary-color from-10% border border-b-dark-message-background-color w-full overflow-hidden"}>
             {actionPopupIsOpen && renderActionPopup()}
             <TopNav contact={contact}/>
-            <ChatMessages currentUserId={currentUserId} messages={messages} pendingMessages={pendingMessages} handleOnRightClick={openActionPopup}/>
+            <ChatMessages currentUserId={currentUserId} messages={messages} pendingMessages={pendingMessages} handleOnRightClick={openActionPopup} updateMessagesOnViewed={updateMessagesOnViewed}/>
             <NewMessageForm handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit}/>
         </section>
     );

@@ -1,5 +1,6 @@
 import { DATE_DAYS, DATE_MONTHS } from "../consts/consts";
 import React from "react";
+import { KeyValuePair } from "tailwindcss/types/config";
 
 export const getChatFormatedDate = (timestamp:string) => {
     if (!timestamp) {
@@ -63,3 +64,12 @@ export const handleProfileImgError = ({ currentTarget }:React.SyntheticEvent<HTM
     currentTarget.src = "/assets/imgs/svg/user.svg";
 };
 
+export const getArrayWithUpdatedItemByField = (array:Array<any>, updatedItem:any, field:KeyValuePair):Array<any> => {
+    const [fieldKey, fieldValue] = Object.entries(field).flat();
+    const arrayClone = [...array];
+
+    const indexOfEditedMessage = arrayClone.findIndex((item) => item[fieldKey!] === fieldValue);
+    arrayClone.splice(indexOfEditedMessage, 1, updatedItem);
+
+    return arrayClone;
+};

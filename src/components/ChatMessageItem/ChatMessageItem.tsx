@@ -14,9 +14,10 @@ type Props = {
     message: Message,
     messageStyles: string,
     handleOnRightClick?: (e:React.MouseEvent, message:Message) => void,
+    updateMessagesOnViewed: (viewedMessage:Message) => void,
     wrapperRef?: React.RefObject<HTMLElement>,
 }
-function ChatMessageItem ({ message, handleOnRightClick, messageStyles, wrapperRef }:Props) {
+function ChatMessageItem ({ message, handleOnRightClick, updateMessagesOnViewed, messageStyles, wrapperRef }:Props) {
     const { currentUserId } = useContext(CurrentUserIdContext);
     const chatItemRef = useRef(null);
     const observerOptions = {
@@ -35,14 +36,19 @@ function ChatMessageItem ({ message, handleOnRightClick, messageStyles, wrapperR
     const messagesBelongsToCurrentUser = ():boolean => {
         return message.user_id === currentUserId;
     };
+
+    const getViewMessagePayload = () => {
+        return {
+            message_id: message._id!,
+            user_id: currentUserId!
+        };
+    };
     const addUserToTheMessageViewers = async ():Promise<void> => {
         try {
-            const payload = {
-                message_id: message._id!,
-                user_id: currentUserId!
-            };
-
-            await viewMessage(payload);
+            const payload = getViewMessagePayload();
+            const response = await viewMessage(payload);
+            const viewedMessage = { ...message, message_seen_by: [...message.message_seen_by!, response] };
+            updateMessagesOnViewed(viewedMessage);
         } catch (error) {
             console.log(error);
         }

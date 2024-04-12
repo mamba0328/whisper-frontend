@@ -10,8 +10,9 @@ type Props = {
     messages: Array<Message> | undefined,
     currentUserId: string | null,
     handleOnRightClick: (e:React.MouseEvent, message:Message) => void,
+    updateMessagesOnViewed: (viewedMessage:Message) => void,
 }
-export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleOnRightClick }:Props) => {
+export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleOnRightClick, updateMessagesOnViewed}:Props) => {
     const messagesWrapperRef = useRef(null);
     const handleOnContextMenu = (e:React.MouseEvent, message:Message) => {
         e.preventDefault();
@@ -35,7 +36,7 @@ export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleO
                 const nextMessage = messages[index + 1];
                 const messageStyles = getMessageStyles(message, prevMessage, nextMessage);
 
-                return <ChatMessageItem message={message} messageStyles={messageStyles} key={message?._id || index} handleOnRightClick={handleOnContextMenu} wrapperRef={messagesWrapperRef}/>;
+                return <ChatMessageItem message={message} messageStyles={messageStyles} key={message?._id || index} handleOnRightClick={handleOnContextMenu} wrapperRef={messagesWrapperRef} updateMessagesOnViewed={updateMessagesOnViewed}/>;
             })}
         </ul>;
     };
