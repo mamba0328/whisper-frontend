@@ -31,13 +31,23 @@ select:-webkit-autofill:focus {
     .tail {
         @apply after:content-[''] after:inline-block after:absolute after:bottom-0 after:border-l-[6px] after:border-b-[6px] after:border-t-[6px] after:border-r-[6px] after:border-r-transparent after:border-t-transparent after:border-message-out-background-color after:right-[-5px]
     }
-    .tail__inverse {
+    .tail_inverse {
         @apply after:content-[''] after:inline-block after:absolute after:bottom-0 after:border-r-[6px] after:border-b-[6px] after:border-t-[6px] after:border-l-[6px] after:border-l-transparent after:border-t-transparent after:border-surface-color after:left-[-5px]
     }
-    .tail__surface-color {
+    .tail_surface-color {
         @apply tail after:border-surface-color  after:border-r-transparent after:border-t-transparent
+    }
+    .tail_secondary-color {
+        @apply tail after:border-b-secondary-color after:border-l-transparent after:border-t-transparent
     }
     .menu-item {
       @apply py-[0.5rem] px-[5px] rounded-lg cursor-pointer hover:bg-light-filled-secondary-text-color relative
+    }
+    .message-check-mark{
+        @apply w-[12px] h-[7px] inline-block border-[1.5px] border-t-transparent border-r-transparent border-l-primary-text-color border-b-primary-text-color -rotate-[60deg]
+    }
+
+    .message-check-mark_double{
+        @apply message-check-mark relative after:message-check-mark after:h-[2px] after:translate-y-1.5 after:rotate-[0deg] after:absolute
     }
 }

@@ -29,13 +29,11 @@ function ChatMessageItem ({ message, handleOnRightClick, updateMessagesOnViewed,
 
     const onScreen = useMessageIsOnScreen(chatItemRef, observerOptions);
 
-    const checkMessageWasSeenByCurrentUser = ():boolean => {
-        return !!message.message_seen_by?.find((item) => item.user_id === currentUserId);
-    };
+    const messageWasSeenByCurrentUser = !!message.message_seen_by?.find((item) => item.user_id === currentUserId);
 
-    const messagesBelongsToCurrentUser = ():boolean => {
-        return message.user_id === currentUserId;
-    };
+    const userMessageWasSeenByContact = !!message.message_seen_by?.find((item) => item.user_id !== currentUserId);
+
+    const messagesBelongsToCurrentUser = message.user_id === currentUserId;
 
     const getViewMessagePayload = () => {
         return {
@@ -55,7 +53,7 @@ function ChatMessageItem ({ message, handleOnRightClick, updateMessagesOnViewed,
     };
 
     useEffect(() => {
-        const canAddView = onScreen && !messagesBelongsToCurrentUser() && !checkMessageWasSeenByCurrentUser();
+        const canAddView = onScreen && !messagesBelongsToCurrentUser && !messageWasSeenByCurrentUser;
 
         if (canAddView) {
             void addUserToTheMessageViewers();
@@ -66,10 +64,12 @@ function ChatMessageItem ({ message, handleOnRightClick, updateMessagesOnViewed,
         handleOnRightClick && handleOnRightClick(e, message);
     };
 
+
     return (
-        <li ref={chatItemRef} className={`text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] relative ${messageStyles} pr-[40px]`} onContextMenu={(e) => handleOnContextMenu(e, message)}>
+        <li ref={chatItemRef} className={`text-primary-text-color rounded-xl w-fit pl-[8px] py-[2px] relative ${messageStyles}`} onContextMenu={(e) => handleOnContextMenu(e, message)}>
             {message.body}
-            <span className={"absolute right-[6px] bottom-[3px] text-xs text-primary-text-color font-light opacity-80 "}>{ message ? getFormatedMessageTime(message.created_at!) : ""}</span>
+            <span className={"absolute right-[25px] bottom-[3px] text-xs text-primary-text-color font-light opacity-80"}>{ message ? getFormatedMessageTime(message.created_at!) : ""}</span>
+            {messagesBelongsToCurrentUser && <div className={`absolute right-[10px] bottom-[9px] z-10 ${userMessageWasSeenByContact ? "message-check-mark_double" : "message-check-mark"}`}></div>}
         </li>
     );
 }

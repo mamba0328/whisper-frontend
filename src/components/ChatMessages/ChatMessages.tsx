@@ -12,7 +12,7 @@ type Props = {
     handleOnRightClick: (e:React.MouseEvent, message:Message) => void,
     updateMessagesOnViewed: (viewedMessage:Message) => void,
 }
-export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleOnRightClick, updateMessagesOnViewed}:Props) => {
+export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleOnRightClick, updateMessagesOnViewed }:Props) => {
     const messagesWrapperRef = useRef(null);
     const handleOnContextMenu = (e:React.MouseEvent, message:Message) => {
         e.preventDefault();
@@ -24,9 +24,9 @@ export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleO
             return <ul className={"flex flex-grow flex-col-reverse max-h-[85vh] w-full max-w-[650px] p-[5px]"}></ul>;
         }
 
-        return <ul ref={messagesWrapperRef} className={"flex flex-grow flex-col-reverse max-h-[82vh] w-full max-w-[650px] p-[5px] overflow-y-auto"}>
+        return <ul ref={messagesWrapperRef} className={"flex flex-grow flex-col-reverse max-h-[82vh] w-full max-w-[650px] p-[5px] overflow-y-auto"} onContextMenu={(e) => e.preventDefault()}>
             {pendingMessages.map((message, index) => {
-                return <li key={index} className={`tail rounded-br-none self-end bg-secondary-color text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] 
+                return <li key={index} className={`tail tail_secondary-color  rounded-br-none self-end bg-secondary-color text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] 
                 relative pr-[40px] mb-[5px]`}>
                     {message.body}
                 </li>;
@@ -46,16 +46,18 @@ export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleO
         const messageOrientationStyle = messageBelongsToCurrentUser ? "self-end" : "self-start";
         const messageBg = messageBelongsToCurrentUser ? "bg-message-out-background-color" : "bg-surface-color";
 
-        const pseudoElementStyles = messageBelongsToCurrentUser ? "tail" : "tail-inverse";
+        const pseudoElementStyles = messageBelongsToCurrentUser ? "tail" : "tail_inverse";
 
         const messageIsContinuingPrevious = checkMessageWillBeContinued(prevMessage, message);
         // eslint-disable-next-line
         const tailStyles = messageIsContinuingPrevious ? (messageBelongsToCurrentUser ? "rounded-br-sm" : "rounded-bl-sm") + ' mb-[3px]' : (messageBelongsToCurrentUser ? "rounded-br-none" : "rounded-bl-none") + ` ${pseudoElementStyles} mb-[5px]`;
 
+        const messageDateStyles = messageBelongsToCurrentUser ? "pr-[60px] [&>span]:right-[25px]" : "pr-[40px] [&>span]:right-[6px]";
+
         const messageWillBeContinued = checkMessageWillBeContinued(message, nextMessage);
         const flatTopBorderStyles = messageWillBeContinued ? messageBelongsToCurrentUser ? "rounded-tr-sm" : "rounded-tl-sm" : "";
 
-        return `${messageOrientationStyle} ${messageBg} ${tailStyles} ${flatTopBorderStyles}`;
+        return `${messageOrientationStyle} ${messageBg} ${tailStyles} ${flatTopBorderStyles} ${messageDateStyles}`;
     };
     const checkMessageWillBeContinued = (message:Message|undefined, nextMessage:Message|undefined):boolean => {
         if (!nextMessage || !message) {
