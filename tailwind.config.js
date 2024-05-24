@@ -53,6 +53,7 @@ module.exports = {
             "section-box-shadow-color": "rgba(0, 0, 0, .12)",
             "input-search-background-color": "#181818",
             "input-search-border-color": "#2f2f2f",
+            "popup-outer-bg": "#0000004d",
         },
         fontFamily: {
             //TELEGRAM DEFAULT FONTS //https://web.telegram.org/k/

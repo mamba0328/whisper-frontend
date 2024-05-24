@@ -22,10 +22,18 @@ select:-webkit-autofill:focus {
     -webkit-text-fill-color: var(--primary-text-color) !important;
 }
 
-[contenteditable=true]:empty:not(:focus):before{
-    content:"Message";
-    color: var(--text-secondary-color);
+.message-input:empty:not(:focus):before {
+        content: "Message";
+        color: var(--text-secondary-color);
+    }
+
+.message-input_media:empty:not(:focus):before{
+        content: "Add a caption...";
+        color: var(--text-secondary-color);
 }
+
+
+
 
 @layer components {
     .tail {

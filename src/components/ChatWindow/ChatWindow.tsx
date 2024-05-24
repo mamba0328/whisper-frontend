@@ -5,6 +5,7 @@ import { Popup } from "../Popup/Popup";
 import { TopNav } from "../TopNav/TopNav";
 import { ChatMessages } from "../ChatMessages/ChatMessages";
 import { NewMessageForm } from "../NewMessageForm/NewMessageForm";
+import { NewMediaMessageForm } from "../NewMediaMessageForm/NewMediaMessageForm";
 
 import { createNewMessage, updateMessage, getUsersChatMessages, deleteMessage } from "../../services/UserRequestsService/UserRequestsService";
 import { getArrayWithUpdatedItemByField } from "../../utils/helpers";
@@ -32,6 +33,8 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
     const [actionPopupIsOpen, setActionPopupIsOpen] = useState(false);
     const [actionPopupPosition, setActionPopupPosition] = useState({ top: "", left: "" });
     const [messageAtAction, setMessageAtAction] = useState(null as MessageAtAction);
+
+    const [newMediaMessageFormIsOpen, setNewMediaMessageFormIsOpen] = useState(false);
 
     const [editMessage, setEditMessage] = useState(null as EditMessageText);
 
@@ -153,6 +156,9 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         setMessageAtAction(null);
     };
 
+    const handleOpenNewMediaMessageForm = () => setNewMediaMessageFormIsOpen(true);
+    const handleCloseNewMediaMessageForm = () => setNewMediaMessageFormIsOpen(false);
+
     const handleUpdateMessage = async (newMessageBody:string) => {
         try {
             if (!editMessage?._id) {
@@ -214,9 +220,10 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
     return (
         <section className={"hidden sm:flex flex-col items-center justify-start place-content-center bg-gradient-to-tl from-dark-message-background-color to-secondary-color from-10% border border-b-dark-message-background-color w-full overflow-hidden"}>
             {actionPopupIsOpen && renderActionPopup()}
+            {newMediaMessageFormIsOpen && <NewMediaMessageForm onNewMediaMessageFormClose={handleCloseNewMediaMessageForm} handleSendMessage={handleSendMessage} value={editMessage?.body ?? null} />}
             <TopNav contact={contact}/>
             <ChatMessages currentUserId={currentUserId} messages={messages} pendingMessages={pendingMessages} handleOnRightClick={openActionPopup} updateMessagesOnViewed={updateMessagesOnViewed}/>
-            <NewMessageForm handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit}/>
+            <NewMessageForm handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit} onAttachmentButtonClick={handleOpenNewMediaMessageForm}/>
         </section>
     );
 }
