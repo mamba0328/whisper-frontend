@@ -8,12 +8,13 @@ import { NewMessageForm } from "../NewMessageForm/NewMessageForm";
 import { NewMediaMessageForm } from "../NewMediaMessageForm/NewMediaMessageForm";
 
 import { createNewMessage, updateMessage, getUsersChatMessages, deleteMessage } from "../../services/UserRequestsService/UserRequestsService";
-import { getArrayWithUpdatedItemByField } from "../../utils/helpers";
+import { getArrayWithUpdatedItemByField, objectToFormData } from "../../utils/helpers";
 
 import { Chat, User, MessagePayload, Message } from "../../types/types";
 
 type MessageAtAction = Message | null;
 type EditMessageText = Message | null;
+type Media = null | File
 
 type Props = {
     chatId: string | undefined,
@@ -34,7 +35,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
     const [actionPopupPosition, setActionPopupPosition] = useState({ top: "", left: "" });
     const [messageAtAction, setMessageAtAction] = useState(null as MessageAtAction);
 
-    const [newMediaMessageFormIsOpen, setNewMediaMessageFormIsOpen] = useState(false);
+    const [messageImg, setMessageImg] = useState(null as Media);
 
     const [editMessage, setEditMessage] = useState(null as EditMessageText);
 
@@ -86,7 +87,8 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
             updateChatLastMessage(stateLastMessage!);
         }
     };
-    const handleSendMessage = async (messageBody:string):Promise<void> => {
+
+    const handleSendMessage = async (messageBody:string, messageImg?:File):Promise<void> => {
         try {
             if (!messageBody.trim().length) {
                 return console.log("No empty messages allowed");
@@ -96,15 +98,14 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
                 return console.log("Some key value is missing to send message");
             }
 
-            const messagePayload:MessagePayload = { body: messageBody, chat_id: chatId, user_id: currentUserId };
+            const messagePayload:MessagePayload = { body: messageBody, chat_id: chatId, user_id: currentUserId, ...messageImg && { message_img: messageImg} };
 
             setPendingMessages([messagePayload]);
 
-            const response = await createNewMessage(messagePayload);
+            const response = await createNewMessage(objectToFormData(messagePayload));
 
             setPendingMessages((messages) => messages.filter((item) => JSON.stringify(item) !== JSON.stringify(messagePayload)));
             setMessages((messages) => messages?.length ? [response, ...messages] : [response]);
-
         } catch (error) {
             console.log(error);
         }
@@ -146,6 +147,12 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         }
     };
 
+    const handleImgInput = (event:InputEvent) => {
+        // @ts-ignore
+        const [file]:[File] = event.target.files;
+
+        file && setMessageImg(file);
+    };
     const handleEditMessage = () => {
         setEditMessage(messageAtAction);
         closeActionPopup(true);
@@ -155,9 +162,6 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         setEditMessage(null);
         setMessageAtAction(null);
     };
-
-    const handleOpenNewMediaMessageForm = () => setNewMediaMessageFormIsOpen(true);
-    const handleCloseNewMediaMessageForm = () => setNewMediaMessageFormIsOpen(false);
 
     const handleUpdateMessage = async (newMessageBody:string) => {
         try {
@@ -220,10 +224,10 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
     return (
         <section className={"hidden sm:flex flex-col items-center justify-start place-content-center bg-gradient-to-tl from-dark-message-background-color to-secondary-color from-10% border border-b-dark-message-background-color w-full overflow-hidden"}>
             {actionPopupIsOpen && renderActionPopup()}
-            {newMediaMessageFormIsOpen && <NewMediaMessageForm onNewMediaMessageFormClose={handleCloseNewMediaMessageForm} handleSendMessage={handleSendMessage} value={editMessage?.body ?? null} />}
+            {messageImg && <NewMediaMessageForm onNewMediaMessageFormClose={() => setMessageImg(null)} handleSendMessage={handleSendMessage} messageImg={messageImg} value={editMessage?.body ?? null} />}
             <TopNav contact={contact}/>
             <ChatMessages currentUserId={currentUserId} messages={messages} pendingMessages={pendingMessages} handleOnRightClick={openActionPopup} updateMessagesOnViewed={updateMessagesOnViewed}/>
-            <NewMessageForm handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit} onAttachmentButtonClick={handleOpenNewMediaMessageForm}/>
+            <NewMessageForm handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit} handleFileInput={handleImgInput}/>
         </section>
     );
 }

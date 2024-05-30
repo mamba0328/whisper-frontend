@@ -73,3 +73,13 @@ export const getArrayWithUpdatedItemByField = (array:Array<any>, updatedItem:any
 
     return arrayClone;
 };
+
+export const objectToFormData = (obj:Record<any, any>) => {
+    const formData = new FormData();
+    Object.entries(obj).forEach((entry) => {
+        const [key, value] = entry;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        formData.append(key, value);
+    });
+    return formData;
+};

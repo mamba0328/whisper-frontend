@@ -62,7 +62,7 @@ export const getUsersChatMessages = async (params:AxiosQuery):Promise<Array<Mess
 
     return data;
 };
-export const createNewMessage = async (messagePayload:MessagePayload, params?:AxiosQuery):Promise<Message> => {
+export const createNewMessage = async (messagePayload:MessagePayload | FormData, params?:AxiosQuery):Promise<Message> => {
     const res = await post(CHAT_MESSAGES, messagePayload, { params });
 
     const data:Message = res.data;

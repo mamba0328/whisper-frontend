@@ -6,9 +6,9 @@ type Props = {
     handleSendMessage: CallableFunction,
     handleUpdateMessage: CallableFunction,
     handleCancelEdit: CallableFunction,
-    onAttachmentButtonClick: CallableFunction,
+    handleFileInput: CallableFunction,
 }
-export const NewMessageForm = ({ value, handleSendMessage, handleUpdateMessage, handleCancelEdit, onAttachmentButtonClick }:Props) => {
+export const NewMessageForm = ({ value, handleSendMessage, handleUpdateMessage, handleCancelEdit, handleFileInput }:Props) => {
     const isEditMode = !!value;
     const inputRef = useRef(null);
 
@@ -61,9 +61,10 @@ export const NewMessageForm = ({ value, handleSendMessage, handleUpdateMessage, 
                 <div suppressContentEditableWarning={true} ref={inputRef} contentEditable dir={"auto"} className={"message-input bg-surface-color resize-none focus:outline-none w-full min-h-[50px] pt-[11px] pr-[15px] pb-[9px] text-primary-text-color caret-primary-text-color max-h-[300px] overflow-y-auto"} onKeyDown={(e) => handleKeyDown(e)}>
                     {value}
                 </div>
-                <button onClick={() => void onAttachmentButtonClick()} type={"button"} className={"absolute bottom-[12px] right-[12px] grid place-content-center w-[34px] h-[34px] rounded-full  hover:bg-secondary-text-color hover:bg-opacity-10"}>
+                <label className={"absolute bottom-[12px] right-[12px] grid place-content-center w-[34px] h-[34px] rounded-full  hover:bg-secondary-text-color hover:bg-opacity-10"}>
+                    <input onChange={(e) => void handleFileInput(e)} type={"file"} accept="image/*" className={'hidden'}/>
                     <img src={"/assets/imgs/svg/attachment.svg"} className={"w-[21px] h-[21px]"}/>
-                </button>
+                </label>
             </div>
         );
     };
