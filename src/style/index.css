@@ -32,8 +32,9 @@ select:-webkit-autofill:focus {
         color: var(--text-secondary-color);
 }
 
-
-
+.chat-messages {
+    padding: 5px calc((100% - (650px))/2 + 5px);
+}
 
 @layer components {
     .tail {
@@ -57,5 +58,9 @@ select:-webkit-autofill:focus {
 
     .message-check-mark_double{
         @apply message-check-mark relative after:message-check-mark after:h-[2px] after:translate-y-1.5 after:rotate-[0deg] after:absolute
+    }
+
+    .scrollable {
+        @apply [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500
     }
 }
