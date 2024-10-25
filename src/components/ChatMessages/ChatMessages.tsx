@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 
-
 import ChatMessageItem from "../ChatMessageItem/ChatMessageItem";
 
 import { Message, MessagePayload } from "../../types/types";
@@ -35,12 +34,19 @@ export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleO
                 const prevMessage = messages[index - 1];
                 const nextMessage = messages[index + 1];
                 const messageStyles = getMessageStyles(message, prevMessage, nextMessage);
+                const messageOrientation = getMessageOrientation(message);
 
-                return <ChatMessageItem message={message} messageStyles={messageStyles} key={message?._id || index} handleOnRightClick={handleOnContextMenu} wrapperRef={messagesWrapperRef} updateMessagesOnViewed={updateMessagesOnViewed}/>;
+
+                return <ChatMessageItem orientation={messageOrientation} message={message} messageStyles={messageStyles} key={message?._id || index} handleOnRightClick={handleOnContextMenu} wrapperRef={messagesWrapperRef} updateMessagesOnViewed={updateMessagesOnViewed}/>;
             })}
         </ul>;
     };
 
+    const getMessageOrientation = (message: Message) => {
+        const messageBelongsToCurrentUser = message.user_id === currentUserId;
+
+        return messageBelongsToCurrentUser ? "right" : "left";
+    };
     const getMessageStyles = (message:Message, prevMessage:Message|undefined, nextMessage:Message|undefined) => {
         const messageBelongsToCurrentUser = message.user_id === currentUserId;
         const messageOrientationStyle = messageBelongsToCurrentUser ? "self-end" : "self-start";
@@ -52,12 +58,14 @@ export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleO
         // eslint-disable-next-line
         const tailStyles = messageIsContinuingPrevious ? (messageBelongsToCurrentUser ? "rounded-br-sm" : "rounded-bl-sm") + ' mb-[3px]' : (messageBelongsToCurrentUser ? "rounded-br-none" : "rounded-bl-none") + ` ${pseudoElementStyles} mb-[5px]`;
 
-        const messageDateStyles = messageBelongsToCurrentUser ? "pr-[60px] [&>span]:right-[25px]" : "pr-[40px] [&>span]:right-[6px]";
+        const messageDateStyles = messageBelongsToCurrentUser ? "[&>p]:pr-[60px] [&>span]:right-[25px]" : "[&>p]:pr-[40px] [&>span]:right-[6px]";
+        const mediaMessageStyles = message.message_imgs?.length ? " pl-[5px] pr-[5px] pt-[5px]" : "";
 
         const messageWillBeContinued = checkMessageWillBeContinued(message, nextMessage);
         const flatTopBorderStyles = messageWillBeContinued ? messageBelongsToCurrentUser ? "rounded-tr-sm" : "rounded-tl-sm" : "";
 
-        return `${messageOrientationStyle} ${messageBg} ${tailStyles} ${flatTopBorderStyles} ${messageDateStyles}`;
+
+        return `${messageOrientationStyle} ${messageBg} ${tailStyles} ${flatTopBorderStyles} ${messageDateStyles} ${mediaMessageStyles}`;
     };
     const checkMessageWillBeContinued = (message:Message|undefined, nextMessage:Message|undefined):boolean => {
         if (!nextMessage || !message) {

@@ -63,7 +63,10 @@ export type Message = {
     body: string,
     status: "new" | "edited" | "deleted",
 
-    message_img_id?: string,
+    message_imgs?: [{
+        _id: string,
+        mimetype?: string,
+    },]
 
     message_seen_by?: Array<MessageSeenBy>,
 

@@ -214,7 +214,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
     if (!chatId) {
         return (
             <section className={"hidden sm:grid place-content-center bg-dark-message-background-color border border-b-dark-message-background-color w-full "}>
-                <p className={"p-[0.5rem] px-[1rem] rounded-3xl bg-input-search-background-color text-secondary-text-color"}>
+                <p className={"mx-[0.5rem] p-[0.5rem] px-[1rem] rounded-3xl bg-input-search-background-color text-secondary-text-color"}>
                       "Select open chat or contact to start messaging"
                 </p>
             </section>

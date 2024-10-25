@@ -1,6 +1,14 @@
 import { post, get, del, put } from "../AxiosMethodsService/AxiosMethodsService";
 
-import { CHATS, SIGN_IN, SIGN_OUT, SIGN_UP, CHAT_MESSAGES, MESSAGE_SEEN_BY} from "./consts/UserRequestRoutes";
+import {
+    CHATS,
+    SIGN_IN,
+    SIGN_OUT,
+    SIGN_UP,
+    CHAT_MESSAGES,
+    MESSAGE_SEEN_BY,
+    MESSAGES_IMGS
+} from "./consts/UserRequestRoutes";
 
 import {
     SignInPayload,
@@ -62,6 +70,14 @@ export const getUsersChatMessages = async (params:AxiosQuery):Promise<Array<Mess
 
     return data;
 };
+
+export const getMessageImg = async (id:string, params?:AxiosQuery):Promise<File> => {
+    const res = await get(`${MESSAGES_IMGS}/${id}`, { params });
+
+    const data:File = res.data;
+
+    return data;
+};
 export const createNewMessage = async (messagePayload:MessagePayload | FormData, params?:AxiosQuery):Promise<Message> => {
     const res = await post(CHAT_MESSAGES, messagePayload, { params });
 
@@ -91,4 +107,4 @@ export const viewMessage = async (messageViewByPayload: MessageSeenByPayload):Pr
     const data:MessageSeenBy = res.data;
 
     return data;
-}
+};

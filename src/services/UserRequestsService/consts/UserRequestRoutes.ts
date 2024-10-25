@@ -7,5 +7,6 @@ export const USER = `${GLOBAL_API_PATH}/users`;
 
 export const CHATS = `${GLOBAL_API_PATH}/chats`;
 export const CHAT_MESSAGES = `${GLOBAL_API_PATH}/chat-messages`;
+export const MESSAGES_IMGS = `${GLOBAL_API_PATH}/messages-imgs`;
 
 export const MESSAGE_SEEN_BY = `${GLOBAL_API_PATH}/message-seen-by`;
