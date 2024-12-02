@@ -3,6 +3,7 @@ import React, { useRef } from "react";
 import ChatMessageItem from "../ChatMessageItem/ChatMessageItem";
 
 import { Message, MessagePayload } from "../../types/types";
+import ChatPendingMessage from "../ChatPendingMessage/ChatPendingMessage";
 
 type Props = {
     pendingMessages: Array<MessagePayload>
@@ -23,19 +24,15 @@ export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleO
             return <ul className={"flex flex-grow flex-col-reverse max-h-[85vh] w-full max-w-[650px] p-[5px]"}></ul>;
         }
 
-        return <ul ref={messagesWrapperRef} className={"chat-messages flex flex-grow flex-col-reverse max-h-[82vh] w-full overflow-y-auto scrollable"} onContextMenu={(e) => e.preventDefault()}>
+        return <ul ref={messagesWrapperRef} className={"chat-messages flex flex-grow flex-col-reverse max-h-[82vh] w-full overflow-y-auto overflow-x-hidden scrollable"} onContextMenu={(e) => e.preventDefault()}>
             {pendingMessages.map((message, index) => {
-                return <li key={index} className={`tail tail_secondary-color  rounded-br-none self-end bg-secondary-color text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] 
-                relative pr-[40px] mb-[5px]`}>
-                    {message.body}
-                </li>;
+                return <ChatPendingMessage orientation={"right"} message={message} messageStyles={"tail tail_secondary-color  rounded-br-none self-end bg-secondary-color text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] relative pr-[40px] mb-[5px]"} key={index} />;
             })}
             {messages.map((message, index) => {
                 const prevMessage = messages[index - 1];
                 const nextMessage = messages[index + 1];
                 const messageStyles = getMessageStyles(message, prevMessage, nextMessage);
                 const messageOrientation = getMessageOrientation(message);
-
 
                 return <ChatMessageItem orientation={messageOrientation} message={message} messageStyles={messageStyles} key={message?._id || index} handleOnRightClick={handleOnContextMenu} wrapperRef={messagesWrapperRef} updateMessagesOnViewed={updateMessagesOnViewed}/>;
             })}
@@ -59,7 +56,7 @@ export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleO
         const tailStyles = messageIsContinuingPrevious ? (messageBelongsToCurrentUser ? "rounded-br-sm" : "rounded-bl-sm") + ' mb-[3px]' : (messageBelongsToCurrentUser ? "rounded-br-none" : "rounded-bl-none") + ` ${pseudoElementStyles} mb-[5px]`;
 
         const messageDateStyles = messageBelongsToCurrentUser ? "[&>p]:pr-[60px] [&>span]:right-[25px]" : "[&>p]:pr-[40px] [&>span]:right-[6px]";
-        const mediaMessageStyles = message.message_imgs?.length ? " pl-[8px] pr-[8px] pt-[8px]" : "";
+        const mediaMessageStyles = message.message_imgs?.length ? "pl-[8px] pr-[8px] pt-[8px]" : "";
 
         const messageWillBeContinued = checkMessageWillBeContinued(message, nextMessage);
         const flatTopBorderStyles = messageWillBeContinued ? messageBelongsToCurrentUser ? "rounded-tr-sm" : "rounded-tl-sm" : "";

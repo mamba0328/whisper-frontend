@@ -88,9 +88,9 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         }
     };
 
-    const handleSendMessage = async (messageBody:string, messageImg?:File):Promise<void> => {
+    const handleSendMessage = async (messageBody:string, message_img?:File):Promise<void> => {
         try {
-            if (!messageBody.trim().length) {
+            if (!messageBody.trim().length && !messageImg) {
                 return console.log("No empty messages allowed");
             }
 
@@ -98,7 +98,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
                 return console.log("Some key value is missing to send message");
             }
 
-            const messagePayload:MessagePayload = { body: messageBody, chat_id: chatId, user_id: currentUserId, ...messageImg && { message_img: messageImg} };
+            const messagePayload:MessagePayload = { body: messageBody, chat_id: chatId, user_id: currentUserId, ...messageImg && { message_img } };
 
             setPendingMessages([messagePayload]);
 
@@ -213,7 +213,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
 
     if (!chatId) {
         return (
-            <section className={"hidden sm:grid place-content-center bg-dark-message-background-color border border-b-dark-message-background-color w-full "}>
+            <section className={"hidden sm:grid place-content-center bg-dark-message-background-color border border-dark-message-background-color w-full "}>
                 <p className={"mx-[0.5rem] p-[0.5rem] px-[1rem] rounded-3xl bg-input-search-background-color text-secondary-text-color"}>
                       "Select open chat or contact to start messaging"
                 </p>

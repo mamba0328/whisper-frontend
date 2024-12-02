@@ -40,6 +40,7 @@ export type UserPayload = {
 export type MessagePayload = {
     user_id: string | null,
     chat_id: string | null,
+    message_img?: File,
     body: string,
 }
 

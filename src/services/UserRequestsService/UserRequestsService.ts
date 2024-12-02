@@ -71,10 +71,10 @@ export const getUsersChatMessages = async (params:AxiosQuery):Promise<Array<Mess
     return data;
 };
 
-export const getMessageImg = async (id:string, params?:AxiosQuery):Promise<File> => {
+export const getMessageImg = async (id:string, params?:AxiosQuery):Promise<string> => {
     const res = await get(`${MESSAGES_IMGS}/${id}`, { params });
 
-    const data:File = res.data;
+    const data:string = res.data;
 
     return data;
 };

@@ -23,10 +23,10 @@ export const NewMediaMessageForm = ({ value, handleSendMessage, onNewMediaMessag
         // @ts-ignore
         inputRef.current.innerText = null;
     };
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (imgIsLoading) return;
         // @ts-ignore
-        handleSendMessage(inputRef.current.innerText as string, messageImg);
+        await handleSendMessage(inputRef.current.innerText as string, messageImg);
         resetInput();
         onNewMediaMessageFormClose();
     };
