@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
+import socketio from "socket.io-client";
+
 import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/CurrentUserIdContext";
 
 import { Popup } from "../Popup/Popup";
@@ -9,6 +11,7 @@ import { NewMediaMessageForm } from "../NewMediaMessageForm/NewMediaMessageForm"
 
 import { createNewMessage, updateMessage, getUsersChatMessages, deleteMessage } from "../../services/UserRequestsService/UserRequestsService";
 import { getArrayWithUpdatedItemByField, objectToFormData } from "../../utils/helpers";
+
 
 import { Chat, User, MessagePayload, Message } from "../../types/types";
 
@@ -41,6 +44,12 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
 
     useEffect(() => {
         void getSetChatMessages();
+
+        const io = socketio("http://localhost:6969?roomId=testRoom&userName=testUser", { withCredentials: true });
+
+        return () => {
+            io.disconnect();
+        };
     }, [chatId]);
 
     useEffect(() => {
