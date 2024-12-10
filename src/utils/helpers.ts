@@ -83,3 +83,7 @@ export const objectToFormData = (obj:Record<any, any>) => {
     });
     return formData;
 };
+
+export const getImgSrc = (imgName:string) => {
+    return `${process.env.API_DOMAIN}/messages_imgs/${imgName}`;
+};

@@ -64,15 +64,21 @@ export type Message = {
     body: string,
     status: "new" | "edited" | "deleted",
 
-    message_imgs?: [{
-        _id: string,
-        mimetype?: string,
-    },]
+    message_imgs?: [MessageImg]
 
     message_seen_by?: Array<MessageSeenBy>,
 
     created_at?: string,
     updated_at?: string,
+}
+
+export type MessageImg = {
+    _id: string,
+    path: string,
+    filename: string,
+    mimetype: string,
+    width: string,
+    height: string,
 }
 
 export type ChatPayload = {

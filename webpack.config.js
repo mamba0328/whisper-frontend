@@ -1,5 +1,6 @@
 require('dotenv').config()
 const path = require('path');
+const DotenvWebpack = require('dotenv-webpack')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
@@ -29,6 +30,7 @@ module.exports = {
         port: 9000,
     },
     plugins: [
+        new DotenvWebpack(),
         new MiniCssExtractPlugin({
             filename: "[name].[contenthash].css",
         }),

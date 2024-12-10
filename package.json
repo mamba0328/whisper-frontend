@@ -27,9 +27,11 @@
   },
   "devDependencies": {
     "@stylistic/eslint-plugin-js": "^1.6.3",
+    "@types/dotenv-webpack": "^7.0.8",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
     "css-loader": "^6.9.0",
+    "dotenv-webpack": "^8.1.0",
     "eslint": "^8.57.0",
     "file-loader": "^6.2.0",
     "postcss": "^8.4.33",
