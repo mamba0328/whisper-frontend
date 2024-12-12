@@ -72,7 +72,7 @@ export const NewMessageForm = ({ value, handleSendMessage, handleUpdateMessage, 
     return (
         <form className={"w-full flex justify-center laptop:pl-[60px] gap-[10px] pb-[50px]"} >
             {renderInput()}
-            <ActionButton onClick={handleSubmit} styles={"grid place-content-center"}>
+            <ActionButton onClick={(handleSubmit)} styles={"grid place-content-center"}>
                 <img src={"/assets/imgs/svg/paper_plane.svg"}/>
             </ActionButton>
         </form>

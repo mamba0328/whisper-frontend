@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
-import socketio from "socket.io-client";
 
 import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/CurrentUserIdContext";
+
+import { socket } from "../../services/SocketService/SocketService";
 
 import { Popup } from "../Popup/Popup";
 import { TopNav } from "../TopNav/TopNav";
@@ -9,8 +10,8 @@ import { ChatMessages } from "../ChatMessages/ChatMessages";
 import { NewMessageForm } from "../NewMessageForm/NewMessageForm";
 import { NewMediaMessageForm } from "../NewMediaMessageForm/NewMediaMessageForm";
 
-import { createNewMessage, updateMessage, getUsersChatMessages, deleteMessage } from "../../services/UserRequestsService/UserRequestsService";
-import { getArrayWithUpdatedItemByField, objectToFormData } from "../../utils/helpers";
+import { updateMessage, getUsersChatMessages, deleteMessage } from "../../services/UserRequestsService/UserRequestsService";
+import { getArrayWithUpdatedItemByField } from "../../utils/helpers";
 
 
 import { Chat, User, MessagePayload, Message } from "../../types/types";
@@ -31,7 +32,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
     const { currentUserId } = useContext(CurrentUserIdContext);
 
     const [pendingMessages, setPendingMessages] = useState([] as MessagePayload[]);
-    const [messages, setMessages] = useState(chat_messages);
+    const [messages, setMessages] = useState(chat_messages ?? []);
     const [contact, setContact] = useState({} as User);
 
     const [actionPopupIsOpen, setActionPopupIsOpen] = useState(false);
@@ -43,12 +44,26 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
     const [editMessage, setEditMessage] = useState(null as EditMessageText);
 
     useEffect(() => {
-        void getSetChatMessages();
+        function addMessage (newMessage:Message) {
+            if (chatId !== newMessage.chat_id) {
+                return;
+            }
+            setMessages([newMessage, ...messages]);
+        }
 
-        const io = socketio("http://localhost:6969?roomId=testRoom&userName=testUser", { withCredentials: true });
+        socket.on("message", addMessage);
 
         return () => {
-            io.disconnect();
+            socket.off("message", addMessage);
+        };
+    }, [messages]);
+
+    useEffect(() => {
+        void getSetChatMessages();
+
+        socket.emit("enterRoom", chatId);
+        return () => {
+            socket.emit("leaveRoom", chatId);
         };
     }, [chatId]);
 
@@ -111,17 +126,17 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
 
             setPendingMessages([messagePayload]);
 
-            const response = await createNewMessage(objectToFormData(messagePayload));
-
-            setPendingMessages((messages) => messages.filter((item) => JSON.stringify(item) !== JSON.stringify(messagePayload)));
-            setMessages((messages) => messages?.length ? [response, ...messages] : [response]);
+            socket.emit("message", messagePayload, (response:Message) => {
+                setPendingMessages((messages) => messages.filter((item) => JSON.stringify(item) !== JSON.stringify(messagePayload)));
+                setMessages((messages) => messages?.length ? [response, ...messages] : [response]);
+            });
         } catch (error) {
             console.log(error);
         }
     };
 
     const updateMessagesOnViewed = (viewedMessage:Message) => {
-        const updatedMessages = getArrayWithUpdatedItemByField(messages!, viewedMessage, { _id: viewedMessage._id! });
+        const updatedMessages = getArrayWithUpdatedItemByField(messages, viewedMessage, { _id: viewedMessage._id! });
         setMessages(updatedMessages);
     };
 
@@ -148,7 +163,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
             }
             const messageId = messageAtAction._id;
             const response = await deleteMessage(messageId!);
-            response && setMessages(messages!.filter((message) => message._id !== messageId));
+            response && setMessages(messages.filter((message) => message._id !== messageId));
         } catch (error) {
             console.log(error);
         } finally {
@@ -184,7 +199,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
                 return;
             }
 
-            const updatedArray = getArrayWithUpdatedItemByField(messages!, response, { _id: response._id! });
+            const updatedArray = getArrayWithUpdatedItemByField(messages, response, { _id: response._id! });
             setMessages(updatedArray);
             handleCancelEdit();
         } catch (error) {
