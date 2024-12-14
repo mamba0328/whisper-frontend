@@ -1,5 +1,5 @@
-import { MessageImg } from "../../types/types";
-import { getImgSrc } from "../../utils/helpers";
+import { MessageImg } from "../../../types/types";
+import { getImgSrc } from "../../../utils/helpers";
 import React from "react";
 import { twMerge } from "tailwind-merge";
 

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
-import { ActionButton } from "../ActionButton/ActionButton";
-import { Popup } from "../Popup/Popup";
+import { ActionButton } from "../../HOC/ActionButton/ActionButton";
+import { Popup } from "../../HOC/Popup/Popup";
 
 type Props = {
     value: string | null,

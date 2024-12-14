@@ -1,13 +1,13 @@
 import React, { useRef, useEffect, useContext } from "react";
 
-import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/CurrentUserIdContext";
-import useMessageIsOnScreen from "../../hooks/useMessageIsOnScreen";
+import { CurrentUserIdContext } from "../../../context/CurrentUserIdContext/CurrentUserIdContext";
+import useMessageIsOnScreen from "../../../hooks/useMessageIsOnScreen";
 
-import { viewMessage } from "../../services/UserRequestsService/UserRequestsService";
+import { viewMessage } from "../../../services/UserRequestsService/UserRequestsService";
 
-import { getFormatedMessageTime, getImgSrc } from "../../utils/helpers";
+import { getFormatedMessageTime, getImgSrc } from "../../../utils/helpers";
 
-import { Message } from "../../types/types";
+import { Message } from "../../../types/types";
 import MessageImg from "../MessageImg/MessageImg";
 
 type Props = {

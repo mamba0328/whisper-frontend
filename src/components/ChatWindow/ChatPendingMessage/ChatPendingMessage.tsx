@@ -1,6 +1,6 @@
 import React from "react";
 
-import { MessagePayload } from "../../types/types";
+import { MessagePayload } from "../../../types/types";
 
 
 type Props = {

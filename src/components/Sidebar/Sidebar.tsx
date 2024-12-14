@@ -6,8 +6,8 @@ import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/Current
 import { getChatFormatedDate } from "../../utils/helpers";
 import { handleProfileImgError } from "../../utils/helpers";
 
-import { SearchInput } from "../SearchInput/SearchInput";
-import { Chat, Message } from "../../types/types";
+import { SearchInput } from "../HOC/SearchInput/SearchInput";
+import { Chat } from "../../types/types";
 
 
 type Props = {

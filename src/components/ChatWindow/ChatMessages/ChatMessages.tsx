@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 
 import ChatMessageItem from "../ChatMessageItem/ChatMessageItem";
 
-import { Message, MessagePayload } from "../../types/types";
+import { Message, MessagePayload } from "../../../types/types";
 import ChatPendingMessage from "../ChatPendingMessage/ChatPendingMessage";
 
 type Props = {

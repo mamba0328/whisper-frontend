@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { ActionButton } from "../ActionButton/ActionButton";
+import { ActionButton } from "../../HOC/ActionButton/ActionButton";
 
 type Props = {
     value: string | null,
@@ -62,7 +62,7 @@ export const NewMessageForm = ({ value, handleSendMessage, handleUpdateMessage, 
                     {value}
                 </div>
                 <label className={"absolute bottom-[12px] right-[12px] grid place-content-center w-[34px] h-[34px] rounded-full  hover:bg-secondary-text-color hover:bg-opacity-10"}>
-                    <input onChange={(e) => void handleFileInput(e)} type={"file"} accept="image/*" className={'hidden'}/>
+                    <input onChange={(e) => void handleFileInput(e)} type={"file"} accept="image/*" className={"hidden"}/>
                     <img src={"/assets/imgs/svg/attachment.svg"} className={"w-[21px] h-[21px]"}/>
                 </label>
             </div>
