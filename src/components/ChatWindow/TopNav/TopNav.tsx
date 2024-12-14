@@ -1,8 +1,8 @@
 import React from "react";
 
-import { handleProfileImgError } from "../../utils/helpers";
+import { handleProfileImgError } from "../../../utils/helpers";
 
-import { User } from "../../types/types";
+import { User } from "../../../types/types";
 
 type Props = {
     contact: User | undefined,

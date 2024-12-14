@@ -5,7 +5,7 @@ import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/Current
 import { socket } from "../../services/SocketService/SocketService";
 
 import { Popup } from "../HOC/Popup/Popup";
-import { TopNav } from "../TopNav/TopNav";
+import { TopNav } from "./TopNav/TopNav";
 import { ChatMessages } from "./ChatMessages/ChatMessages";
 import { NewMessageForm } from "./NewMessageForm/NewMessageForm";
 import { NewMediaMessageForm } from "./NewMediaMessageForm/NewMediaMessageForm";
