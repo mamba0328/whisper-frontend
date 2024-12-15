@@ -1,6 +1,9 @@
+
+#DEFAULT
 /node_modules
 /.idea
 .env
 /public/main*
+/package-lock.json
 
 /todo.md
