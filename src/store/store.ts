@@ -1,36 +1,17 @@
 import { create } from "zustand";
-import { combine, devtools, persist } from "zustand/middleware";
-import { Chat, Message } from "../types/types";
+import { devtools, persist } from "zustand/middleware";
+import { createChatsSlice, ChatsSlice } from "./slices/chatsSlice";
+import { createMessagesSlice, MessagesSlice } from "./slices/messagesSlice";
 
-interface State {
-    allChats: Array<Chat>;
-    chatMessages: Array<Message>;
-}
-
-interface Actions {
-    setChatMessages: (chatMessages: State["chatMessages"]) => void;
-    setAllChats: (allChats: State["allChats"]) => void;
-}
-
-type GlobalStore = State & Actions;
-
-const initialState: State = {
-    allChats: [],
-    chatMessages: []
-};
-
-const actions = (set: (arg: Partial<State>) => void): Actions => ({
-    setChatMessages: (chatMessages: Array<Message>) => set({ chatMessages }),
-    setAllChats: (allChats: Array<Chat>) => set({ allChats })
-});
-
-export const useGlobalStore = create<GlobalStore>()(
+type StoreState = ChatsSlice & MessagesSlice;
+export const useStore = create<StoreState>()(
     devtools(
         persist(
-            combine<State, Actions>(initialState, (set) => actions(set)),
+            (set, get) => ({
+                ...createChatsSlice(set),
+                ...createMessagesSlice(set)
+            }),
             { name: "whisper-global-storage" }
         )
     )
 );
-
-
