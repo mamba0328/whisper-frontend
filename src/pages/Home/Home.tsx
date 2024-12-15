@@ -15,7 +15,7 @@ export const Home = () => {
     const { chatId } = useParams();
     const { currentUserId } = useContext(CurrentUserIdContext);
 
-    const { allChats, setAllChats, updateChatsPreviewMessage } = useStore();
+    const { allChats, setAllChats } = useStore();
     const [selectedChat, setSelectedChat] = useState({} as Chat);
 
     const getSetChats = async () => {
@@ -44,7 +44,7 @@ export const Home = () => {
     return (
         <div className={"flex"}>
             <Sidebar chats={allChats} setSelectedChat={setSelectedChat}/>
-            <ChatWindow chatData={selectedChat} updateChatsPreviewMessage={updateChatsPreviewMessage}/>
+            <ChatWindow chatData={selectedChat} />
         </div>
     );
 };

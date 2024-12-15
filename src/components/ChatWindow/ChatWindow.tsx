@@ -10,7 +10,7 @@ import { MessageList } from "./MessageList/MessageList";
 import { NewMessageForm } from "./NewMessageForm/NewMessageForm";
 import { NewMediaMessageForm } from "./NewMediaMessageForm/NewMediaMessageForm";
 
-import { updateMessage, getUsersChatMessages, deleteMessage } from "../../services/UserRequestsService/UserRequestsService";
+import { getUsersChatMessages } from "../../services/UserRequestsService/UserRequestsService";
 import { getArrayWithUpdatedItemByField } from "../../utils/helpers";
 
 
@@ -23,14 +23,14 @@ type Media = null | File
 
 type Props = {
     chatData: Chat,
-    updateChatsPreviewMessage: (message:Message) => void,
 }
 
-export function ChatWindow ({ chatData, updateChatsPreviewMessage } : Props) {
+export function ChatWindow ({ chatData } : Props) {
     const { chat_users, _id: chatId } = chatData ?? {};
 
     const { currentUserId } = useContext(CurrentUserIdContext);
-    const { chatMessages, setChatMessages } = useStore();
+    const { chatMessages, setChatMessages, deleteMessage, updateMessage } = useStore();
+    const { updateChatsPreviewMessage } = useStore();
 
     const [pendingMessages, setPendingMessages] = useState([] as MessagePayload[]);
     const [contact, setContact] = useState({} as User);
@@ -51,10 +51,10 @@ export function ChatWindow ({ chatData, updateChatsPreviewMessage } : Props) {
             setChatMessages([newMessage, ...chatMessages]);
         }
 
-        socket.on("message", addMessage);
+        socket.on("newMessage", addMessage);
 
         return () => {
-            socket.off("message", addMessage);
+            socket.off("newMessage", addMessage);
         };
     }, [chatMessages]);
 
@@ -73,7 +73,7 @@ export function ChatWindow ({ chatData, updateChatsPreviewMessage } : Props) {
     }, [chatData]);
 
     useEffect(() => {
-        updateChatsPreviewMessageIfChanged();
+        // updateChatsPreviewMessageIfChanged();
     }, [chatMessages]);
 
     const resetState = () => {
@@ -99,42 +99,6 @@ export function ChatWindow ({ chatData, updateChatsPreviewMessage } : Props) {
             console.log(error);
         }
     };
-
-    const updateChatsPreviewMessageIfChanged = () => {
-        const propsLastMessage = chatData.chat_messages?.[0];
-        const stateLastMessage = chatMessages?.[0];
-
-        const isNewMessage = propsLastMessage?._id !== stateLastMessage?._id;
-        const isUpdatedMessage = JSON.stringify(propsLastMessage) !== JSON.stringify(stateLastMessage);
-
-        if (stateLastMessage && isNewMessage || isUpdatedMessage) {
-            updateChatsPreviewMessage(stateLastMessage!);
-        }
-    };
-
-    const handleSendMessage = async (messageBody:string, message_img?:File):Promise<void> => {
-        try {
-            if (!messageBody.trim().length && !messageImg) {
-                return console.log("No empty messages allowed");
-            }
-
-            if (!chatId || !currentUserId) {
-                return console.log("Some key value is missing to send message");
-            }
-
-            const messagePayload:MessagePayload = { body: messageBody, chat_id: chatId, user_id: currentUserId, ...messageImg && { message_img } };
-
-            setPendingMessages([messagePayload]);
-
-            socket.emit("message", messagePayload, (response:Message) => {
-                setPendingMessages((chatMessages) => chatMessages.filter((item) => JSON.stringify(item) !== JSON.stringify(messagePayload)));
-                chatMessages?.length && setChatMessages([response, ...chatMessages]);
-            });
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
     const updateMessagesOnViewed = (viewedMessage:Message) => {
         const updatedMessages:Message[] = getArrayWithUpdatedItemByField(chatMessages, viewedMessage, { _id: viewedMessage._id! });
         setChatMessages(updatedMessages);
@@ -156,14 +120,46 @@ export function ChatWindow ({ chatData, updateChatsPreviewMessage } : Props) {
         closeActionPopup();
     };
 
+    const handleSendMessage = (messageBody:string, message_img?:File) => {
+        try {
+            if (!messageBody.trim().length && !messageImg) {
+                return console.log("No empty messages allowed");
+            }
+
+            if (!chatId || !currentUserId) {
+                return console.log("Some key value is missing to send message");
+            }
+
+            const messagePayload:MessagePayload = { body: messageBody, chat_id: chatId, user_id: currentUserId, ...messageImg && { message_img } };
+
+            setPendingMessages([messagePayload]);
+
+            socket.emit("createMessage", messagePayload, (response:Message) => {
+                setPendingMessages((chatMessages) => chatMessages.filter((item) => JSON.stringify(item) !== JSON.stringify(messagePayload)));
+                chatMessages?.length && setChatMessages([response, ...chatMessages]);
+                updateChatsPreviewMessage(response);
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const handleDeleteMessage = async () => {
         try {
             if (!messageAtAction) {
                 return closeActionPopup();
             }
-            const messageId = messageAtAction._id;
-            const response = await deleteMessage(messageId!);
-            response && setChatMessages(chatMessages.filter((message) => message._id !== messageId));
+
+            const response:boolean = await socket.emitWithAck("deleteMessage", messageAtAction);
+
+            if (!response) {
+                throw new Error("Can't delete");
+            }
+
+            deleteMessage(messageAtAction._id!);
+
+            const isPreviewMessage = chatData.chat_messages![0]!._id === messageAtAction._id;
+            isPreviewMessage && updateChatsPreviewMessage(chatMessages[1] ?? {} as Message);
         } catch (error) {
             console.log(error);
         } finally {
@@ -171,6 +167,28 @@ export function ChatWindow ({ chatData, updateChatsPreviewMessage } : Props) {
         }
     };
 
+    const handleUpdateMessage = async (newMessageBody:string) => {
+        try {
+            if (!editMessage?._id) {
+                return;
+            }
+
+            const response:Message | null = await socket.emitWithAck("updateMessage", { ...editMessage, body: newMessageBody });
+
+            if (!response) {
+                throw new Error("Can't update");
+            }
+
+            updateMessage(response);
+
+            const isPreviewMessage = chatData.chat_messages![0]!._id === editMessage?._id;
+            isPreviewMessage && updateChatsPreviewMessage(response);
+
+            handleCancelEdit();
+        } catch (error) {
+            console.log(error);
+        }
+    };
     const handleImgInput = (event:InputEvent) => {
         // @ts-ignore
         const [file]:[File] = event.target.files;
@@ -187,25 +205,6 @@ export function ChatWindow ({ chatData, updateChatsPreviewMessage } : Props) {
         setMessageAtAction(null);
     };
 
-    const handleUpdateMessage = async (newMessageBody:string) => {
-        try {
-            if (!editMessage?._id) {
-                return;
-            }
-
-            const response = await updateMessage(editMessage._id, newMessageBody);
-
-            if (!response) {
-                return;
-            }
-
-            const updatedArray = getArrayWithUpdatedItemByField(chatMessages, response, { _id: response._id! });
-            setChatMessages(updatedArray);
-            handleCancelEdit();
-        } catch (error) {
-            console.log(error);
-        }
-    };
     const renderActionPopup = () => {
         const messageAtActionBelongsToCurrentUser = messageAtAction?.user_id === currentUserId;
 

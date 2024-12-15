@@ -78,28 +78,6 @@ export const getMessageImg = async (id:string, params?:AxiosQuery):Promise<strin
 
     return data;
 };
-export const createNewMessage = async (messagePayload:MessagePayload | FormData, params?:AxiosQuery):Promise<Message> => {
-    const res = await post(CHAT_MESSAGES, messagePayload, { params });
-
-    const data:Message = res.data;
-
-    return data;
-};
-
-export const updateMessage = async (messageId:string, messageBody:string):Promise<Message> => {
-    const res = await put(`${CHAT_MESSAGES}/${messageId}`, { body: messageBody });
-
-    const data:Message = res.data;
-
-    return data;
-};
-export const deleteMessage = async (messageId:string):Promise<boolean> => {
-    const res = await del(`${CHAT_MESSAGES}/${messageId}`);
-
-    const data:boolean = res.data;
-
-    return data;
-};
 
 export const viewMessage = async (messageViewByPayload: MessageSeenByPayload):Promise<MessageSeenBy> => {
     const res = await post(`${MESSAGE_SEEN_BY}`, messageViewByPayload);

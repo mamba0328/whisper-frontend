@@ -27,12 +27,16 @@ const updateChatsPreviewMessageCurry = (set:Set) => (newMessage:Message) => {
             return { allChats };
         }
 
-        const updatedChats = allChats.map((chat, index) => {
+        let updatedChats = allChats.map((chat, index) => {
             if (index === indexOfChatWithUpdatedMessage) {
                 return { ...chat, chat_messages: [newMessage] };
             }
             return chat;
         });
+
+        if (updatedChats.length > 1) {
+            updatedChats = updatedChats.sort((a, b) => new Date(b.chat_messages![0]!.created_at!).getTime() - new Date(a.chat_messages![0]!.created_at!).getTime());
+        }
 
         return { allChats: updatedChats };
     });
