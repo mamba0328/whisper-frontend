@@ -4,20 +4,17 @@ import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/Current
 
 import { socket } from "../../services/SocketService/SocketService";
 
-import { Popup } from "../HOC/Popup/Popup";
 import { TopNav } from "./TopNav/TopNav";
 import { MessageList } from "./MessageList/MessageList";
 import { NewMessageForm } from "./NewMessageForm/NewMessageForm";
 import { NewMediaMessageForm } from "./NewMediaMessageForm/NewMediaMessageForm";
 
 import { getUsersChatMessages } from "../../services/UserRequestsService/UserRequestsService";
-import { getArrayWithUpdatedItemByField } from "../../utils/helpers";
-
 
 import { Chat, User, MessagePayload, Message } from "../../types/types";
 import { useStore } from "../../store/store";
+import ActionPopup from "./ActionPopup/ActionPopup";
 
-type MessageAtAction = Message | null;
 type EditMessageText = Message | null;
 type Media = null | File
 
@@ -26,21 +23,16 @@ type Props = {
 }
 
 export function ChatWindow ({ chatData } : Props) {
-    const { chat_users, _id: chatId } = chatData ?? {};
-
+    const { _id: chatId } = chatData ?? {};
     const { currentUserId } = useContext(CurrentUserIdContext);
-    const { chatMessages, setChatMessages, deleteMessage, updateMessage } = useStore();
-    const { updateChatsPreviewMessage } = useStore();
+
+    const { chatMessages, messageAtAction } = useStore();
+    const { updateChatsPreviewMessage, setChatMessages, updateMessage } = useStore();
+    const { closeActionPopup, resetActionPopup } = useStore();
 
     const [pendingMessages, setPendingMessages] = useState([] as MessagePayload[]);
     const [contact, setContact] = useState({} as User);
-
-    const [actionPopupIsOpen, setActionPopupIsOpen] = useState(false);
-    const [actionPopupPosition, setActionPopupPosition] = useState({ top: "", left: "" });
-    const [messageAtAction, setMessageAtAction] = useState(null as MessageAtAction);
-
     const [messageImg, setMessageImg] = useState(null as Media);
-
     const [editMessage, setEditMessage] = useState(null as EditMessageText);
 
     useEffect(() => {
@@ -68,23 +60,13 @@ export function ChatWindow ({ chatData } : Props) {
     }, [chatData]);
 
     useEffect(() => {
-        void resetState();
+        void resetActionPopup();
         getSetContact();
     }, [chatData]);
 
-    useEffect(() => {
-        // updateChatsPreviewMessageIfChanged();
-    }, [chatMessages]);
-
-    const resetState = () => {
-        setActionPopupIsOpen(false);
-        setActionPopupPosition({ top: "", left: "" });
-        setMessageAtAction(null);
-        setEditMessage(null);
-    };
     const getSetContact = () => {
         if (chatData.chat_users) {
-            const contact = chat_users.find((user) => user._id !== currentUserId)!;
+            const contact = chatData.chat_users.find((user) => user._id !== currentUserId)!;
             return setContact(contact);
         }
     };
@@ -99,25 +81,21 @@ export function ChatWindow ({ chatData } : Props) {
             console.log(error);
         }
     };
-    const updateMessagesOnViewed = (viewedMessage:Message) => {
-        const updatedMessages:Message[] = getArrayWithUpdatedItemByField(chatMessages, viewedMessage, { _id: viewedMessage._id! });
-        setChatMessages(updatedMessages);
-    };
 
-    const openActionPopup = (e:React.MouseEvent, message: Message) => {
-        setMessageAtAction(message);
-        setActionPopupPosition({ top: `${e.clientY}px`, left: `${e.clientX}px` });
-        setActionPopupIsOpen(true);
-    };
+    const handleImgInput = (event:InputEvent) => {
+        // @ts-ignore
+        const [file]:[File] = event.target.files;
 
-    const closeActionPopup = (keepMessageAtAction?:boolean) => {
-        setActionPopupIsOpen(false);
-        !keepMessageAtAction && setMessageAtAction(null);
+        file && setMessageImg(file);
     };
-
-    const handleCopyMessage = async () => {
-        await navigator.clipboard.writeText(messageAtAction?.body ?? "");
+    const handleStartMessageEdit = () => {
+        setEditMessage(messageAtAction);
         closeActionPopup();
+    };
+
+    const handleCancelEdit = () => {
+        setEditMessage(null);
+        resetActionPopup();
     };
 
     const handleSendMessage = (messageBody:string, message_img?:File) => {
@@ -144,36 +122,13 @@ export function ChatWindow ({ chatData } : Props) {
         }
     };
 
-    const handleDeleteMessage = async () => {
-        try {
-            if (!messageAtAction) {
-                return closeActionPopup();
-            }
-
-            const response:boolean = await socket.emitWithAck("deleteMessage", messageAtAction);
-
-            if (!response) {
-                throw new Error("Can't delete");
-            }
-
-            deleteMessage(messageAtAction._id!);
-
-            const isPreviewMessage = chatData.chat_messages![0]!._id === messageAtAction._id;
-            isPreviewMessage && updateChatsPreviewMessage(chatMessages[1] ?? {} as Message);
-        } catch (error) {
-            console.log(error);
-        } finally {
-            closeActionPopup();
-        }
-    };
-
     const handleUpdateMessage = async (newMessageBody:string) => {
         try {
             if (!editMessage?._id) {
                 return;
             }
 
-            const response:Message | null = await socket.emitWithAck("updateMessage", { ...editMessage, body: newMessageBody });
+            const response:Message | null = await socket.timeout(10_000).emitWithAck("updateMessage", { ...editMessage, body: newMessageBody });
 
             if (!response) {
                 throw new Error("Can't update");
@@ -189,50 +144,6 @@ export function ChatWindow ({ chatData } : Props) {
             console.log(error);
         }
     };
-    const handleImgInput = (event:InputEvent) => {
-        // @ts-ignore
-        const [file]:[File] = event.target.files;
-
-        file && setMessageImg(file);
-    };
-    const handleStartMessageEdit = () => {
-        setEditMessage(messageAtAction);
-        closeActionPopup(true);
-    };
-
-    const handleCancelEdit = () => {
-        setEditMessage(null);
-        setMessageAtAction(null);
-    };
-
-    const renderActionPopup = () => {
-        const messageAtActionBelongsToCurrentUser = messageAtAction?.user_id === currentUserId;
-
-        return (
-            <Popup position={actionPopupPosition} onClose={closeActionPopup}>
-                <ul>
-                    {messageAtActionBelongsToCurrentUser && <li key={"edit"} onClick={() => void handleStartMessageEdit()}>
-                        <button className={"text-primary-text-color flex gap-[20px] items-center justify-start px-1 mr-10]"}>
-                            <img src={"/assets/imgs/svg/edit.svg"} className={"size-icon"}/>
-                            <p>Edit</p>
-                        </button>
-                    </li>}
-                    <li key={"copy"} onClick={() => void handleCopyMessage()}>
-                        <button className={"text-primary-text-color flex gap-[20px] items-center justify-start px-1 mr-10"}>
-                            <img src={"/assets/imgs/svg/copy.svg"} className={"size-icon"}/>
-                            <p>Copy</p>
-                        </button>
-                    </li>
-                    <li key={"delete"} onClick={() => void handleDeleteMessage()}>
-                        <button className={"text-dark-danger-color flex gap-[20px] items-center justify-start px-1 mr-10"}>
-                            <img src={"/assets/imgs/svg/trash-can.svg"} className={"size-icon"}/>
-                            <p>Delete</p>
-                        </button>
-                    </li>
-                </ul>
-            </Popup>
-        );
-    };
 
     if (!chatId) {
         return (
@@ -246,10 +157,10 @@ export function ChatWindow ({ chatData } : Props) {
 
     return (
         <section className={"hidden sm:flex flex-col items-center justify-start place-content-center bg-gradient-to-tl from-dark-message-background-color to-secondary-color from-10% border border-dark-message-background-color w-full overflow-hidden"}>
-            {actionPopupIsOpen && renderActionPopup()}
+            <ActionPopup handleStartMessageEdit={handleStartMessageEdit} chatData={chatData}/>
             {messageImg && <NewMediaMessageForm onNewMediaMessageFormClose={() => setMessageImg(null)} handleSendMessage={handleSendMessage} messageImg={messageImg} value={editMessage?.body ?? null} />}
             <TopNav contact={contact}/>
-            <MessageList currentUserId={currentUserId} messages={chatMessages} pendingMessages={pendingMessages} handleOnRightClick={openActionPopup} updateMessagesOnViewed={updateMessagesOnViewed}/>
+            <MessageList currentUserId={currentUserId} messages={chatMessages} pendingMessages={pendingMessages}/>
             <NewMessageForm handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit} handleFileInput={handleImgInput}/>
         </section>
     );

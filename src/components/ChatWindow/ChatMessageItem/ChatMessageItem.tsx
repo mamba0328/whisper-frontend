@@ -5,20 +5,22 @@ import useMessageIsOnScreen from "../../../hooks/useMessageIsOnScreen";
 
 import { viewMessage } from "../../../services/UserRequestsService/UserRequestsService";
 
-import { getFormatedMessageTime, getImgSrc } from "../../../utils/helpers";
+import { getArrayWithUpdatedItemByField, getFormatedMessageTime } from "../../../utils/helpers";
 
 import { Message } from "../../../types/types";
 import MessageImg from "../MessageImg/MessageImg";
+import { useStore } from "../../../store/store";
+import { socket } from "../../../services/SocketService/SocketService";
 
 type Props = {
     message: Message,
     messageStyles: string,
     orientation: "left" | "right",
     handleOnRightClick?: (e:React.MouseEvent, message:Message) => void,
-    updateMessagesOnViewed?: (viewedMessage:Message) => void,
     wrapperRef?: React.RefObject<HTMLElement>,
 }
-function ChatMessageItem ({ message, handleOnRightClick, orientation, updateMessagesOnViewed = () => {}, messageStyles, wrapperRef }:Props) {
+function ChatMessageItem ({ message, handleOnRightClick, orientation, messageStyles, wrapperRef }:Props) {
+    const { chatMessages, setChatMessages } = useStore();
     const { currentUserId } = useContext(CurrentUserIdContext);
     const chatItemRef = useRef(null);
 
@@ -29,7 +31,7 @@ function ChatMessageItem ({ message, handleOnRightClick, orientation, updateMess
         message // It's only job to trigger inner useEffect of useOnScreen hook.
     };
 
-    const onScreen = useMessageIsOnScreen(chatItemRef, observerOptions);
+    const onScreen = useMessageIsOnScreen(chatItemRef, observerOptions as IntersectionObserverInit);
     const hasImage = !!message.message_imgs?.length;
 
 
@@ -41,6 +43,10 @@ function ChatMessageItem ({ message, handleOnRightClick, orientation, updateMess
         }
     }, [message, onScreen]);
 
+    const updateMessagesOnViewed = (viewedMessage:Message) => {
+        const updatedMessages:Message[] = getArrayWithUpdatedItemByField(chatMessages, viewedMessage, { _id: viewedMessage._id! });
+        setChatMessages(updatedMessages);
+    };
 
     const messageWasSeenByCurrentUser = !!message.message_seen_by?.find((item) => item.user_id === currentUserId);
 
@@ -51,6 +57,7 @@ function ChatMessageItem ({ message, handleOnRightClick, orientation, updateMess
     const getViewMessagePayload = () => {
         return {
             message_id: message._id!,
+            chat_id: message.chat_id,
             user_id: currentUserId!
         };
     };
@@ -58,7 +65,13 @@ function ChatMessageItem ({ message, handleOnRightClick, orientation, updateMess
     const addUserToTheMessageViewers = async ():Promise<void> => {
         try {
             const payload = getViewMessagePayload();
-            const response = await viewMessage(payload);
+
+            const response = await socket.timeout(10_000).emitWithAck("viewMessage", payload);
+
+            if (!response) {
+                return;
+            }
+
             const viewedMessage = { ...message, message_seen_by: [...message.message_seen_by!, response] };
             updateMessagesOnViewed(viewedMessage);
         } catch (error) {

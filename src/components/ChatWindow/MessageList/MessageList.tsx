@@ -4,19 +4,19 @@ import ChatMessageItem from "../ChatMessageItem/ChatMessageItem";
 
 import { Message, MessagePayload } from "../../../types/types";
 import ChatPendingMessage from "../ChatPendingMessage/ChatPendingMessage";
+import { useStore } from "../../../store/store";
 
 type Props = {
     pendingMessages: Array<MessagePayload>
     messages: Array<Message> | undefined,
     currentUserId: string | null,
-    handleOnRightClick: (e:React.MouseEvent, message:Message) => void,
-    updateMessagesOnViewed: (viewedMessage:Message) => void,
 }
-export const MessageList = ({ messages, currentUserId, pendingMessages, handleOnRightClick, updateMessagesOnViewed }:Props) => {
+export const MessageList = ({ messages, currentUserId, pendingMessages }:Props) => {
+    const { openActionPopup } = useStore();
     const messagesWrapperRef = useRef(null);
     const handleOnContextMenu = (e:React.MouseEvent, message:Message) => {
         e.preventDefault();
-        handleOnRightClick(e, message);
+        openActionPopup(e, message);
     };
     const renderMessages = () => {
         const noMessages = !messages?.length;
@@ -28,13 +28,13 @@ export const MessageList = ({ messages, currentUserId, pendingMessages, handleOn
             {pendingMessages.map((message, index) => {
                 return <ChatPendingMessage orientation={"right"} message={message} messageStyles={"tail tail_secondary-color  rounded-br-none self-end bg-secondary-color text-primary-text-color rounded-xl w-fit px-[8px] py-[2px] relative pr-[40px] mb-[5px]"} key={index} />;
             })}
-            {messages.map((message, index) => {
-                const prevMessage = messages[index - 1];
-                const nextMessage = messages[index + 1];
+            {messages?.map((message, index) => {
+                const prevMessage = messages?.[index - 1];
+                const nextMessage = messages?.[index + 1];
                 const messageStyles = getMessageStyles(message, prevMessage, nextMessage);
                 const messageOrientation = getMessageOrientation(message);
 
-                return <ChatMessageItem orientation={messageOrientation} message={message} messageStyles={messageStyles} key={message?._id || index} handleOnRightClick={handleOnContextMenu} wrapperRef={messagesWrapperRef} updateMessagesOnViewed={updateMessagesOnViewed}/>;
+                return <ChatMessageItem orientation={messageOrientation} message={message} messageStyles={messageStyles} key={message?._id || index} handleOnRightClick={handleOnContextMenu} wrapperRef={messagesWrapperRef}/>;
             })}
         </ul>;
     };
