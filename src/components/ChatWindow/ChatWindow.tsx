@@ -15,7 +15,7 @@ import { getArrayWithUpdatedItemByField } from "../../utils/helpers";
 
 
 import { Chat, User, MessagePayload, Message } from "../../types/types";
-import { useGlobalStore } from "../../store/store";
+import { useStore } from "../../store/store";
 
 type MessageAtAction = Message | null;
 type EditMessageText = Message | null;
@@ -23,14 +23,14 @@ type Media = null | File
 
 type Props = {
     chatData: Chat,
-    updateChatLastMessage: (message:Message) => void,
+    updateChatsPreviewMessage: (message:Message) => void,
 }
 
-export function ChatWindow ({ chatData, updateChatLastMessage } : Props) {
-    const { chat_messages, chat_users, _id: chatId } = chatData ?? {};
+export function ChatWindow ({ chatData, updateChatsPreviewMessage } : Props) {
+    const { chat_users, _id: chatId } = chatData ?? {};
 
     const { currentUserId } = useContext(CurrentUserIdContext);
-    const { chatMessages, setChatMessages } = useGlobalStore();
+    const { chatMessages, setChatMessages } = useStore();
 
     const [pendingMessages, setPendingMessages] = useState([] as MessagePayload[]);
     const [contact, setContact] = useState({} as User);
@@ -73,7 +73,7 @@ export function ChatWindow ({ chatData, updateChatLastMessage } : Props) {
     }, [chatData]);
 
     useEffect(() => {
-        updateChatLastMessageIfChanged();
+        updateChatsPreviewMessageIfChanged();
     }, [chatMessages]);
 
     const resetState = () => {
@@ -100,7 +100,7 @@ export function ChatWindow ({ chatData, updateChatLastMessage } : Props) {
         }
     };
 
-    const updateChatLastMessageIfChanged = () => {
+    const updateChatsPreviewMessageIfChanged = () => {
         const propsLastMessage = chatData.chat_messages?.[0];
         const stateLastMessage = chatMessages?.[0];
 
@@ -108,7 +108,7 @@ export function ChatWindow ({ chatData, updateChatLastMessage } : Props) {
         const isUpdatedMessage = JSON.stringify(propsLastMessage) !== JSON.stringify(stateLastMessage);
 
         if (stateLastMessage && isNewMessage || isUpdatedMessage) {
-            updateChatLastMessage(stateLastMessage!);
+            updateChatsPreviewMessage(stateLastMessage!);
         }
     };
 
