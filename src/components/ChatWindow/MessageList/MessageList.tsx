@@ -12,7 +12,7 @@ type Props = {
     handleOnRightClick: (e:React.MouseEvent, message:Message) => void,
     updateMessagesOnViewed: (viewedMessage:Message) => void,
 }
-export const ChatMessages = ({ messages, currentUserId, pendingMessages, handleOnRightClick, updateMessagesOnViewed }:Props) => {
+export const MessageList = ({ messages, currentUserId, pendingMessages, handleOnRightClick, updateMessagesOnViewed }:Props) => {
     const messagesWrapperRef = useRef(null);
     const handleOnContextMenu = (e:React.MouseEvent, message:Message) => {
         e.preventDefault();

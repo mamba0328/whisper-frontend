@@ -6,7 +6,7 @@ import { socket } from "../../services/SocketService/SocketService";
 
 import { Popup } from "../HOC/Popup/Popup";
 import { TopNav } from "./TopNav/TopNav";
-import { ChatMessages } from "./ChatMessages/ChatMessages";
+import { MessageList } from "./MessageList/MessageList";
 import { NewMessageForm } from "./NewMessageForm/NewMessageForm";
 import { NewMediaMessageForm } from "./NewMediaMessageForm/NewMediaMessageForm";
 
@@ -15,24 +15,24 @@ import { getArrayWithUpdatedItemByField } from "../../utils/helpers";
 
 
 import { Chat, User, MessagePayload, Message } from "../../types/types";
+import { useGlobalStore } from "../../store/store";
 
 type MessageAtAction = Message | null;
 type EditMessageText = Message | null;
 type Media = null | File
 
 type Props = {
-    chatId: string | undefined,
-    selectedChat: Chat,
+    chatData: Chat,
     updateChatLastMessage: (message:Message) => void,
 }
 
-export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Props) {
-    const { chat_messages, chat_users } = selectedChat;
+export function ChatWindow ({ chatData, updateChatLastMessage } : Props) {
+    const { chat_messages, chat_users, _id: chatId } = chatData ?? {};
 
     const { currentUserId } = useContext(CurrentUserIdContext);
+    const { chatMessages, setChatMessages } = useGlobalStore();
 
     const [pendingMessages, setPendingMessages] = useState([] as MessagePayload[]);
-    const [messages, setMessages] = useState(chat_messages ?? []);
     const [contact, setContact] = useState({} as User);
 
     const [actionPopupIsOpen, setActionPopupIsOpen] = useState(false);
@@ -48,7 +48,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
             if (chatId !== newMessage.chat_id) {
                 return;
             }
-            setMessages([newMessage, ...messages]);
+            setChatMessages([newMessage, ...chatMessages]);
         }
 
         socket.on("message", addMessage);
@@ -56,7 +56,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         return () => {
             socket.off("message", addMessage);
         };
-    }, [messages]);
+    }, [chatMessages]);
 
     useEffect(() => {
         void getSetChatMessages();
@@ -65,16 +65,16 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         return () => {
             socket.emit("leaveRoom", chatId);
         };
-    }, [chatId]);
+    }, [chatData]);
 
     useEffect(() => {
         void resetState();
         getSetContact();
-    }, [selectedChat]);
+    }, [chatData]);
 
     useEffect(() => {
         updateChatLastMessageIfChanged();
-    }, [messages]);
+    }, [chatMessages]);
 
     const resetState = () => {
         setActionPopupIsOpen(false);
@@ -83,7 +83,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         setEditMessage(null);
     };
     const getSetContact = () => {
-        if (selectedChat.chat_users) {
+        if (chatData.chat_users) {
             const contact = chat_users.find((user) => user._id !== currentUserId)!;
             return setContact(contact);
         }
@@ -94,15 +94,15 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         }
         try {
             const chatMessages = await getUsersChatMessages({ chat_id: chatId });
-            setMessages(chatMessages);
+            setChatMessages(chatMessages);
         } catch (error) {
             console.log(error);
         }
     };
 
     const updateChatLastMessageIfChanged = () => {
-        const propsLastMessage = selectedChat.chat_messages?.[0];
-        const stateLastMessage = messages?.[0];
+        const propsLastMessage = chatData.chat_messages?.[0];
+        const stateLastMessage = chatMessages?.[0];
 
         const isNewMessage = propsLastMessage?._id !== stateLastMessage?._id;
         const isUpdatedMessage = JSON.stringify(propsLastMessage) !== JSON.stringify(stateLastMessage);
@@ -127,8 +127,8 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
             setPendingMessages([messagePayload]);
 
             socket.emit("message", messagePayload, (response:Message) => {
-                setPendingMessages((messages) => messages.filter((item) => JSON.stringify(item) !== JSON.stringify(messagePayload)));
-                setMessages((messages) => messages?.length ? [response, ...messages] : [response]);
+                setPendingMessages((chatMessages) => chatMessages.filter((item) => JSON.stringify(item) !== JSON.stringify(messagePayload)));
+                chatMessages?.length && setChatMessages([response, ...chatMessages]);
             });
         } catch (error) {
             console.log(error);
@@ -136,8 +136,8 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
     };
 
     const updateMessagesOnViewed = (viewedMessage:Message) => {
-        const updatedMessages = getArrayWithUpdatedItemByField(messages, viewedMessage, { _id: viewedMessage._id! });
-        setMessages(updatedMessages);
+        const updatedMessages:Message[] = getArrayWithUpdatedItemByField(chatMessages, viewedMessage, { _id: viewedMessage._id! });
+        setChatMessages(updatedMessages);
     };
 
     const openActionPopup = (e:React.MouseEvent, message: Message) => {
@@ -163,7 +163,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
             }
             const messageId = messageAtAction._id;
             const response = await deleteMessage(messageId!);
-            response && setMessages(messages.filter((message) => message._id !== messageId));
+            response && setChatMessages(chatMessages.filter((message) => message._id !== messageId));
         } catch (error) {
             console.log(error);
         } finally {
@@ -177,7 +177,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
 
         file && setMessageImg(file);
     };
-    const handleEditMessage = () => {
+    const handleStartMessageEdit = () => {
         setEditMessage(messageAtAction);
         closeActionPopup(true);
     };
@@ -199,8 +199,8 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
                 return;
             }
 
-            const updatedArray = getArrayWithUpdatedItemByField(messages, response, { _id: response._id! });
-            setMessages(updatedArray);
+            const updatedArray = getArrayWithUpdatedItemByField(chatMessages, response, { _id: response._id! });
+            setChatMessages(updatedArray);
             handleCancelEdit();
         } catch (error) {
             console.log(error);
@@ -212,7 +212,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
         return (
             <Popup position={actionPopupPosition} onClose={closeActionPopup}>
                 <ul>
-                    {messageAtActionBelongsToCurrentUser && <li key={"edit"} onClick={() => void handleEditMessage()}>
+                    {messageAtActionBelongsToCurrentUser && <li key={"edit"} onClick={() => void handleStartMessageEdit()}>
                         <button className={"text-primary-text-color flex gap-[20px] items-center justify-start px-1 mr-10]"}>
                             <img src={"/assets/imgs/svg/edit.svg"} className={"size-icon"}/>
                             <p>Edit</p>
@@ -250,7 +250,7 @@ export function ChatWindow ({ chatId, selectedChat, updateChatLastMessage } : Pr
             {actionPopupIsOpen && renderActionPopup()}
             {messageImg && <NewMediaMessageForm onNewMediaMessageFormClose={() => setMessageImg(null)} handleSendMessage={handleSendMessage} messageImg={messageImg} value={editMessage?.body ?? null} />}
             <TopNav contact={contact}/>
-            <ChatMessages currentUserId={currentUserId} messages={messages} pendingMessages={pendingMessages} handleOnRightClick={openActionPopup} updateMessagesOnViewed={updateMessagesOnViewed}/>
+            <MessageList currentUserId={currentUserId} messages={chatMessages} pendingMessages={pendingMessages} handleOnRightClick={openActionPopup} updateMessagesOnViewed={updateMessagesOnViewed}/>
             <NewMessageForm handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit} handleFileInput={handleImgInput}/>
         </section>
     );

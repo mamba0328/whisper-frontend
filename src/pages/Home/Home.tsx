@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 
+import { useGlobalStore } from "../../store/store";
+
 import { Chat, Message } from "../../types/types";
 
 import { Sidebar } from "../../components/Sidebar/Sidebar";
@@ -13,13 +15,13 @@ export const Home = () => {
     const { chatId } = useParams();
     const { currentUserId } = useContext(CurrentUserIdContext);
 
-    const [chats, setChats] = useState([] as Array<Chat>);
+    const { allChats, setAllChats } = useGlobalStore();
     const [selectedChat, setSelectedChat] = useState({} as Chat);
 
     const getSetChats = async () => {
         try {
             const userChats = await getUsersChats({ chat_users: currentUserId! });
-            setChats(userChats);
+            setAllChats(userChats);
         } catch (error) {
             console.log(error);
         }
@@ -27,21 +29,21 @@ export const Home = () => {
 
     const getSetSelectedChat = () => {
         if (chatId) {
-            const selectedChat = chats.find((chat) => chat._id === chatId);
+            const selectedChat = allChats.find((chat) => chat._id === chatId);
             selectedChat && setSelectedChat(selectedChat);
         }
     };
 
     const updateChatLastMessage = (newMessage:Message) => {
-        const indexOfChatWithUpdatedMessage = chats.findIndex((chat) => chatId ? chatId === chat._id : selectedChat._id === chat._id);
-        const chatsClone = [...chats];
+        const indexOfChatWithUpdatedMessage = allChats.findIndex((chat) => chatId ? chatId === chat._id : selectedChat._id === chat._id);
+        const chatsClone = [...allChats];
 
         if (!chatsClone[indexOfChatWithUpdatedMessage]) {
             return;
         }
 
-        chatsClone[indexOfChatWithUpdatedMessage]!.chat_messages = [newMessage];
-        setChats(chatsClone);
+        chatsClone[indexOfChatWithUpdatedMessage].chat_messages = [newMessage];
+        setAllChats(chatsClone);
     };
 
     useEffect(() => {
@@ -50,12 +52,12 @@ export const Home = () => {
 
     useEffect(() => {
         void getSetSelectedChat();
-    }, [chatId, chats]);
+    }, [chatId, allChats]);
 
     return (
         <div className={"flex"}>
-            <Sidebar chats={chats} setSelectedChat={setSelectedChat}/>
-            <ChatWindow chatId={chatId} selectedChat={selectedChat} updateChatLastMessage={updateChatLastMessage}/>
+            <Sidebar chats={allChats} setSelectedChat={setSelectedChat}/>
+            <ChatWindow chatData={selectedChat} updateChatLastMessage={updateChatLastMessage}/>
         </div>
     );
 };
