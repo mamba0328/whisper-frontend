@@ -1,14 +1,16 @@
 import React, { useRef, useEffect } from "react";
 import { ActionButton } from "../../HOC/ActionButton/ActionButton";
+import { socket } from "../../../services/SocketService/SocketService";
 
 type Props = {
     value: string | null,
+    chatId: string,
     handleSendMessage: CallableFunction,
     handleUpdateMessage: CallableFunction,
     handleCancelEdit: CallableFunction,
     handleFileInput: CallableFunction,
 }
-export const NewMessageForm = ({ value, handleSendMessage, handleUpdateMessage, handleCancelEdit, handleFileInput }:Props) => {
+export const NewMessageForm = ({ value, chatId, handleSendMessage, handleUpdateMessage, handleCancelEdit, handleFileInput }:Props) => {
     const isEditMode = !!value;
     const inputRef = useRef(null);
 
@@ -38,6 +40,14 @@ export const NewMessageForm = ({ value, handleSendMessage, handleUpdateMessage, 
         }
     };
 
+    const handleOnInputFocus = () => {
+        socket.emit("startWriting", chatId);
+    };
+
+    const handleOnInputBlur = () => {
+        socket.emit("stopWriting", chatId);
+    };
+
     const renderEditBlock = () => {
         return (
             <div className={"flex items-center justify-start gap-5 w-full pt-1"}>
@@ -56,7 +66,7 @@ export const NewMessageForm = ({ value, handleSendMessage, handleUpdateMessage, 
     };
     const renderInput = () => {
         return (
-            <div className={"flex flex-col items-center bg-surface-color px-[25px] rounded-2xl relative rounded-br-sm tail__surface-color w-full max-w-[600px] laptop:min-w-[650px]"}>
+            <div className={"flex flex-col items-center bg-surface-color px-[25px] rounded-2xl relative rounded-br-sm tail__surface-color w-full max-w-[600px] laptop:min-w-[650px]"} onBlur={handleOnInputBlur} onFocus={ handleOnInputFocus}>
                 {isEditMode ? renderEditBlock() : null}
                 <div suppressContentEditableWarning={true} ref={inputRef} contentEditable dir={"auto"} className={"message-input bg-surface-color resize-none focus:outline-none w-full min-h-[50px] pt-[11px] pr-[15px] pb-[9px] text-primary-text-color caret-primary-text-color max-h-[300px] overflow-y-auto"} onKeyDown={(e) => handleKeyDown(e)}>
                     {value}

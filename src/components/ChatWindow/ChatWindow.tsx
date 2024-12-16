@@ -11,7 +11,7 @@ import { NewMediaMessageForm } from "./NewMediaMessageForm/NewMediaMessageForm";
 
 import { getUsersChatMessages } from "../../services/UserRequestsService/UserRequestsService";
 
-import { Chat, User, MessagePayload, Message } from "../../types/types";
+import { Chat, User, MessagePayload, Message, MessageSeenBy } from "../../types/types";
 import { useGlobalStore } from "../../store/store";
 import ActionPopup from "./ActionPopup/ActionPopup";
 
@@ -27,7 +27,7 @@ export function ChatWindow ({ chatData } : Props) {
     const { currentUserId } = useContext(CurrentUserIdContext);
 
     const { chatMessages, messageAtAction } = useGlobalStore();
-    const { updateChatsPreviewMessage, initChatMessages, updateMessage, addMessage } = useGlobalStore();
+    const { updateChatsPreviewMessage, initChatMessages, updateMessage, addMessage, addViewer } = useGlobalStore();
     const { closeActionPopup, resetActionPopup } = useGlobalStore();
 
     const [pendingMessages, setPendingMessages] = useState([] as MessagePayload[]);
@@ -44,10 +44,16 @@ export function ChatWindow ({ chatData } : Props) {
             updateChatsPreviewMessage(newMessage);
         }
 
+        function handleMessageWasSeen (messageSeenBy:MessageSeenBy) {
+            addViewer(messageSeenBy);
+        }
+
         socket.on("newMessage", handleNewMessage);
+        socket.on("messageWasSeen", handleMessageWasSeen);
 
         return () => {
             socket.off("newMessage", handleNewMessage);
+            socket.off("messageWasSeen", handleMessageWasSeen);
         };
     }, [chatMessages]);
 
@@ -151,9 +157,9 @@ export function ChatWindow ({ chatData } : Props) {
         <section className={"hidden sm:flex flex-col items-center justify-start place-content-center bg-gradient-to-tl from-dark-message-background-color to-secondary-color from-10% border border-dark-message-background-color w-full overflow-hidden"}>
             <ActionPopup handleStartMessageEdit={handleStartMessageEdit} chatData={chatData}/>
             {messageImg && <NewMediaMessageForm onNewMediaMessageFormClose={() => setMessageImg(null)} handleSendMessage={handleSendMessage} messageImg={messageImg} value={editMessage?.body ?? null} />}
-            <TopNav contact={contact}/>
+            <TopNav contact={contact} chatId={chatId}/>
             <MessageList currentUserId={currentUserId} messages={chatMessages} pendingMessages={pendingMessages}/>
-            <NewMessageForm handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit} handleFileInput={handleImgInput}/>
+            <NewMessageForm chatId={chatId} handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit} handleFileInput={handleImgInput}/>
         </section>
     );
 }

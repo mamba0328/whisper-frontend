@@ -9,6 +9,8 @@ import { handleProfileImgError } from "../../utils/helpers";
 import { SearchInput } from "../HOC/SearchInput/SearchInput";
 import { Chat } from "../../types/types";
 
+import { useGlobalStore } from "../../store/store";
+
 
 type Props = {
     chats: Array<Chat>,
@@ -16,6 +18,8 @@ type Props = {
 }
 export const Sidebar = ({ chats, setSelectedChat }:Props) => {
     const { currentUserId } = useContext(CurrentUserIdContext);
+
+    const { typists } = useGlobalStore();
 
     const getDynamicChatItemStlyes = (active:boolean, unread:boolean):string => {
         const unreadStyles = "after:content-[''] after:absolute after:size-[15px] after:rounded-full after:bg-primary-color after:right-[1rem] after:top-[2.5rem]";
@@ -44,6 +48,8 @@ export const Sidebar = ({ chats, setSelectedChat }:Props) => {
                 setSelectedChat(chatItem);
             };
 
+            const contactWritingInCurrentChat = !!typists.filter(({ user_id, chat_id }) => chat_id === chatItem._id && !!chatItem.chat_users.find(({ _id }) => _id === user_id)).length;
+
             return (
                 <li key={chatItem._id}>
                     <NavLink className={({ isActive }) => `flex items-center min-h-[4.5rem] menu-item relative  ${getDynamicChatItemStlyes(isActive, showUnreadIcon)}`} to={`/k/${chatItem._id}`} onClick={handleChatSelection}>
@@ -54,9 +60,10 @@ export const Sidebar = ({ chats, setSelectedChat }:Props) => {
                         </div>
                         <div>
                             <h4 className={"text-primary-text-color font-medium"}>{chatTitle}</h4>
-                            <p className={"line-clamp-1 text-secondary-text-color pr-[5px]"}>{chatLastMessageBody}</p>
+                            <p className={"line-clamp-1 text-secondary-text-color pr-[5px]"}>{contactWritingInCurrentChat ? "Writing..." : chatLastMessageBody}</p>
                         </div>
                         <span className={"absolute right-[1rem] top-[0.75rem] text-sm text-secondary-text-color font-light"}>{chatLastMessageCreatedAt}</span>
+
                     </NavLink>
                 </li>
             );

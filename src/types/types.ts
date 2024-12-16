@@ -106,3 +106,8 @@ export type AxiosQuery = {
     chat_users?: string,
     chat_id?:string,
 }
+
+export type Typist = { // Contact writes in chat right now
+    user_id: string,
+    chat_id: string,
+}

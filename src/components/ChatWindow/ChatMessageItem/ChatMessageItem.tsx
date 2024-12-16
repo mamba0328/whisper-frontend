@@ -3,9 +3,9 @@ import React, { useRef, useEffect, useContext } from "react";
 import { CurrentUserIdContext } from "../../../context/CurrentUserIdContext/CurrentUserIdContext";
 import useMessageIsOnScreen from "../../../hooks/useMessageIsOnScreen";
 
-import { getArrayWithUpdatedItemByField, getFormatedMessageTime } from "../../../utils/helpers";
+import { getFormatedMessageTime } from "../../../utils/helpers";
 
-import { Message } from "../../../types/types";
+import { Message, MessageSeenBy } from "../../../types/types";
 import MessageImg from "../MessageImg/MessageImg";
 import { useGlobalStore } from "../../../store/store";
 import { socket } from "../../../services/SocketService/SocketService";
@@ -18,7 +18,7 @@ type Props = {
     wrapperRef?: React.RefObject<HTMLElement>,
 }
 function ChatMessageItem ({ message, handleOnRightClick, orientation, messageStyles, wrapperRef }:Props) {
-    const { chatMessages, setChatMessages } = useGlobalStore();
+    const { addViewer } = useGlobalStore();
     const { currentUserId } = useContext(CurrentUserIdContext);
     const chatItemRef = useRef(null);
 
@@ -41,11 +41,6 @@ function ChatMessageItem ({ message, handleOnRightClick, orientation, messageSty
         }
     }, [message, onScreen]);
 
-    const updateMessagesOnViewed = (viewedMessage:Message) => {
-        const updatedMessages:Message[] = getArrayWithUpdatedItemByField(chatMessages, viewedMessage, { _id: viewedMessage._id! });
-        setChatMessages(updatedMessages);
-    };
-
     const messageWasSeenByCurrentUser = !!message.message_seen_by?.find((item) => item.user_id === currentUserId);
 
     const userMessageWasSeenByContact = !!message.message_seen_by?.find((item) => item.user_id !== currentUserId);
@@ -64,14 +59,13 @@ function ChatMessageItem ({ message, handleOnRightClick, orientation, messageSty
         try {
             const payload = getViewMessagePayload();
 
-            const response = await socket.timeout(10_000).emitWithAck("viewMessage", payload);
+            const response:MessageSeenBy = await socket.timeout(10_000).emitWithAck("viewMessage", payload);
 
             if (!response) {
                 return;
             }
 
-            const viewedMessage = { ...message, message_seen_by: [...message.message_seen_by!, response] };
-            updateMessagesOnViewed(viewedMessage);
+            addViewer(response);
         } catch (error) {
             console.log(error);
         }
