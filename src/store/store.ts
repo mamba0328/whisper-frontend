@@ -5,7 +5,7 @@ import { createMessagesSlice, MessagesSlice } from "./slices/messagesSlice";
 import { createActionPopupSlice, ActionPopupSlice } from "./slices/actionPopupSlice";
 
 type StoreState = ChatsSlice & MessagesSlice & ActionPopupSlice;
-export const useStore = create<StoreState>()(
+export const useGlobalStore = create<StoreState>()(
     devtools(
         persist(
             (set, get) => ({

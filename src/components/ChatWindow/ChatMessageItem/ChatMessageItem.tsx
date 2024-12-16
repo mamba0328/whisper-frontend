@@ -3,13 +3,11 @@ import React, { useRef, useEffect, useContext } from "react";
 import { CurrentUserIdContext } from "../../../context/CurrentUserIdContext/CurrentUserIdContext";
 import useMessageIsOnScreen from "../../../hooks/useMessageIsOnScreen";
 
-import { viewMessage } from "../../../services/UserRequestsService/UserRequestsService";
-
 import { getArrayWithUpdatedItemByField, getFormatedMessageTime } from "../../../utils/helpers";
 
 import { Message } from "../../../types/types";
 import MessageImg from "../MessageImg/MessageImg";
-import { useStore } from "../../../store/store";
+import { useGlobalStore } from "../../../store/store";
 import { socket } from "../../../services/SocketService/SocketService";
 
 type Props = {
@@ -20,7 +18,7 @@ type Props = {
     wrapperRef?: React.RefObject<HTMLElement>,
 }
 function ChatMessageItem ({ message, handleOnRightClick, orientation, messageStyles, wrapperRef }:Props) {
-    const { chatMessages, setChatMessages } = useStore();
+    const { chatMessages, setChatMessages } = useGlobalStore();
     const { currentUserId } = useContext(CurrentUserIdContext);
     const chatItemRef = useRef(null);
 

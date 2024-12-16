@@ -4,7 +4,7 @@ import ChatMessageItem from "../ChatMessageItem/ChatMessageItem";
 
 import { Message, MessagePayload } from "../../../types/types";
 import ChatPendingMessage from "../ChatPendingMessage/ChatPendingMessage";
-import { useStore } from "../../../store/store";
+import { useGlobalStore } from "../../../store/store";
 
 type Props = {
     pendingMessages: Array<MessagePayload>
@@ -12,7 +12,7 @@ type Props = {
     currentUserId: string | null,
 }
 export const MessageList = ({ messages, currentUserId, pendingMessages }:Props) => {
-    const { openActionPopup } = useStore();
+    const { openActionPopup } = useGlobalStore();
     const messagesWrapperRef = useRef(null);
     const handleOnContextMenu = (e:React.MouseEvent, message:Message) => {
         e.preventDefault();

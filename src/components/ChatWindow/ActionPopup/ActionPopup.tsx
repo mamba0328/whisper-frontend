@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 
 import { socket } from "../../../services/SocketService/SocketService";
 
-import { useStore } from "../../../store/store";
+import { useGlobalStore } from "../../../store/store";
 import { CurrentUserIdContext } from "../../../context/CurrentUserIdContext/CurrentUserIdContext";
 
 import { Popup } from "../../HOC/Popup/Popup";
@@ -15,10 +15,10 @@ type Props = {
 }
 function ActionPopup ({ handleStartMessageEdit, chatData }:Props) {
     const { currentUserId } = useContext(CurrentUserIdContext);
-    const { messageAtAction, actionPopupPosition, chatMessages } = useStore();
-    const { deleteMessage, closeActionPopup, updateChatsPreviewMessage } = useStore();
+    const { messageAtAction, actionPopupPosition, chatMessages } = useGlobalStore();
+    const { deleteMessage, closeActionPopup, updateChatsPreviewMessage } = useGlobalStore();
 
-    const isOpen = useStore((state) => !!state.actionPopupPosition);
+    const isOpen = useGlobalStore((state) => !!state.actionPopupPosition);
     const messageAtActionBelongsToCurrentUser = messageAtAction?.user_id === currentUserId;
 
     const handleCopyMessage = async () => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 
-import { useStore } from "../../store/store";
+import { useGlobalStore } from "../../store/store";
 
 import { Chat } from "../../types/types";
 
@@ -15,7 +15,7 @@ export const Home = () => {
     const { chatId } = useParams();
     const { currentUserId } = useContext(CurrentUserIdContext);
 
-    const { allChats, setAllChats } = useStore();
+    const { allChats, setAllChats } = useGlobalStore();
     const [selectedChat, setSelectedChat] = useState({} as Chat);
 
     const getSetChats = async () => {
