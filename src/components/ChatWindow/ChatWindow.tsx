@@ -12,7 +12,7 @@ import { NewMediaMessageForm } from "./NewMediaMessageForm/NewMediaMessageForm";
 import { getUsersChatMessages } from "../../services/UserRequestsService/UserRequestsService";
 
 import { Chat, User, MessagePayload, Message } from "../../types/types";
-import { useStore } from "../../store/store";
+import { useGlobalStore } from "../../store/store";
 import ActionPopup from "./ActionPopup/ActionPopup";
 
 type EditMessageText = Message | null;
@@ -26,9 +26,9 @@ export function ChatWindow ({ chatData } : Props) {
     const { _id: chatId } = chatData ?? {};
     const { currentUserId } = useContext(CurrentUserIdContext);
 
-    const { chatMessages, messageAtAction } = useStore();
-    const { updateChatsPreviewMessage, setChatMessages, updateMessage } = useStore();
-    const { closeActionPopup, resetActionPopup } = useStore();
+    const { chatMessages, messageAtAction } = useGlobalStore();
+    const { updateChatsPreviewMessage, initChatMessages, updateMessage, addMessage } = useGlobalStore();
+    const { closeActionPopup, resetActionPopup } = useGlobalStore();
 
     const [pendingMessages, setPendingMessages] = useState([] as MessagePayload[]);
     const [contact, setContact] = useState({} as User);
@@ -36,22 +36,25 @@ export function ChatWindow ({ chatData } : Props) {
     const [editMessage, setEditMessage] = useState(null as EditMessageText);
 
     useEffect(() => {
-        function addMessage (newMessage:Message) {
+        function handleNewMessage (newMessage:Message) {
             if (chatId !== newMessage.chat_id) {
                 return;
             }
-            setChatMessages([newMessage, ...chatMessages]);
+            addMessage(newMessage);
+            updateChatsPreviewMessage(newMessage);
         }
 
-        socket.on("newMessage", addMessage);
+        socket.on("newMessage", handleNewMessage);
 
         return () => {
-            socket.off("newMessage", addMessage);
+            socket.off("newMessage", handleNewMessage);
         };
     }, [chatMessages]);
 
     useEffect(() => {
-        void getSetChatMessages();
+        if (chatId) {
+            void initChatMessages(chatId);
+        }
 
         socket.emit("enterRoom", chatId);
         return () => {
@@ -68,17 +71,6 @@ export function ChatWindow ({ chatData } : Props) {
         if (chatData.chat_users) {
             const contact = chatData.chat_users.find((user) => user._id !== currentUserId)!;
             return setContact(contact);
-        }
-    };
-    const getSetChatMessages = async () => {
-        if (!chatId) {
-            return;
-        }
-        try {
-            const chatMessages = await getUsersChatMessages({ chat_id: chatId });
-            setChatMessages(chatMessages);
-        } catch (error) {
-            console.log(error);
         }
     };
 
@@ -114,7 +106,7 @@ export function ChatWindow ({ chatData } : Props) {
 
             socket.emit("createMessage", messagePayload, (response:Message) => {
                 setPendingMessages((chatMessages) => chatMessages.filter((item) => JSON.stringify(item) !== JSON.stringify(messagePayload)));
-                chatMessages?.length && setChatMessages([response, ...chatMessages]);
+                chatMessages?.length && addMessage(response);
                 updateChatsPreviewMessage(response);
             });
         } catch (error) {
