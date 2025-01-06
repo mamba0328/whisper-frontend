@@ -32,4 +32,8 @@ export const router = createBrowserRouter([
         path: "*",
         element: <h1>404 =(</h1>
     }
-]);
+], {
+    future: {
+        v7_relativeSplatPath: true,
+    }
+});
