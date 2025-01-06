@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
-import { ActionButton } from "../../HOC/ActionButton/ActionButton";
-import { Popup } from "../../HOC/Popup/Popup";
+import { ActionButton } from "../../UI/ActionButton/ActionButton";
+import { Popup } from "../../UI/Popup/Popup";
+import { useCloudinarySignature } from "../../../hooks/useCloudinarySignature";
 
 type Props = {
     value: string | null,
@@ -11,7 +12,7 @@ type Props = {
 export const NewMediaMessageForm = ({ value, handleSendMessage, onNewMediaMessageFormClose, messageImg }:Props) => {
     const inputRef = useRef(null);
     const [imgIsLoading, setImgIsLoading] = useState(true);
-
+    const { signature, timestamp } = useCloudinarySignature();
 
     useEffect(() => {
         if (inputRef.current) {
@@ -19,16 +20,41 @@ export const NewMediaMessageForm = ({ value, handleSendMessage, onNewMediaMessag
             inputRef.current.innerText = value;
         }
     }, [value]);
+
+
     const resetInput = () => {
         // @ts-ignore
         inputRef.current.innerText = null;
     };
-    const handleSubmit = async () => {
+
+    const getFormData = () => {
+        const formData = new FormData();
+        const key = process.env.CLOUDINARY_KEY;
+
+        if (!key) {
+            throw new Error("Bad API key");
+        }
+
+        if (!signature || !timestamp) {
+            throw new Error("Bad signature");
+        }
+
+        formData.append("file", messageImg);
+        formData.append("api_key", key);
+        formData.append("signature", signature);
+        formData.append("timestamp", timestamp);
+
+        return formData;
+    };
+    const handleSubmit = () => {
         if (imgIsLoading) return;
-        // @ts-ignore
-        await handleSendMessage(inputRef.current.innerText as string, messageImg);
-        resetInput();
-        onNewMediaMessageFormClose();
+        const formData = getFormData();
+        const input = inputRef.current ?? {} as HTMLInputElement;
+        const message = input.innerText;
+        handleSendMessage(message, formData).finally(() => {
+            resetInput();
+            onNewMediaMessageFormClose();
+        });
     };
 
     const handleKeyDown = (e:React.KeyboardEvent) => {

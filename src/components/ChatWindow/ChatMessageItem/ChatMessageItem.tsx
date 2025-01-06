@@ -6,7 +6,7 @@ import useMessageIsOnScreen from "../../../hooks/useMessageIsOnScreen";
 import { getFormatedMessageTime } from "../../../utils/helpers";
 
 import { Message, MessageSeenBy } from "../../../types/types";
-import MessageImg from "../MessageImg/MessageImg";
+import LazyImage from "../../UI/LazyImage/LazyImage";
 import { useGlobalStore } from "../../../store/store";
 import { socket } from "../../../services/SocketService/SocketService";
 
@@ -81,7 +81,7 @@ function ChatMessageItem ({ message, handleOnRightClick, orientation, messageSty
         <li ref={chatItemRef} onContextMenu={(e) => handleOnContextMenu(e, message)} className={`flex flex-col ${orientation === "left" ? "self-start" : "self-end"}`}>
             <div className={`text-primary-text-color rounded-xl w-fit pl-[8px] py-[2px] relative ${messageStyles}`}>
                 {hasImage && <div className={"flex justify-center"}>
-                    {message.message_imgs?.map((item) => <MessageImg {...item}/>)}
+                    {message.message_imgs?.map((item) => <LazyImage key={item._id}{...item}/>)}
                 </div>}
                 <p className={`${isMediaMessage && "pb-1"}`}>{message.body}</p>
                 <span className={"absolute right-[25px] bottom-[3px] text-xs text-primary-text-color font-light opacity-80"}>{ message ? getFormatedMessageTime(message.created_at!) : ""}</span>

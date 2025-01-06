@@ -6,7 +6,7 @@ import { CurrentUserIdContext } from "../../context/CurrentUserIdContext/Current
 import { getChatFormatedDate } from "../../utils/helpers";
 import { handleProfileImgError } from "../../utils/helpers";
 
-import { SearchInput } from "../HOC/SearchInput/SearchInput";
+import { SearchInput } from "../UI/SearchInput/SearchInput";
 import { Chat } from "../../types/types";
 
 import { useGlobalStore } from "../../store/store";

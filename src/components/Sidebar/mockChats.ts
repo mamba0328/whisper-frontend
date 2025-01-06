@@ -50,7 +50,7 @@ export const mockChatRespone:Array<ChatResponse> = [
             chat_id: "chat_user_2",
             user_id: user_2._id,
             body: "This is the last message in a chat without a name.",
-            message_imgs: [{ _id: "asdasdsa123sdasd;l1[3pl12=3-asdasdq2", filename: "sadsd", path: "x", mimetype: "jpg", width: "20px", height: "20px" }],
+            message_imgs: [{ _id: "asdasdsa123sdasd;l1[3pl12=3-asdasdq2", public_id: "sadsd", version: 123, signature: "xxx", width: 12, height: 12, format: "jpg" }],
             status: "new",
             created_at: new Date().toISOString()
         }
@@ -65,7 +65,7 @@ export const mockChatRespone:Array<ChatResponse> = [
             chat_id: "chat_user_2",
             user_id: user_2._id,
             body: "This is the last message in a chat without a name 2.",
-            message_imgs: [{ _id: "asdasdsa123sdasd;l1[3pl12=3-asdq2", filename: "sadsd", path: "x", mimetype: "jpg", width: "20px", height: "20px" }],
+            message_imgs: [{ _id: "asdasdsa123sdasd;l1[3pl12=3-asdq2", public_id: "sadsd", version: 123, signature: "xxx", width: 12, height: 12, format: "jpg" }],
             status: "new",
             created_at: new Date().toISOString()
         }
@@ -80,7 +80,7 @@ export const mockChatRespone:Array<ChatResponse> = [
             chat_id: "chat_user_4",
             user_id: user_2._id,
             body: "This is the last message in a chat without a name 3.",
-            message_imgs: [{ _id: "asdasdsa12sd;l1[3pl12=3-asdasdq2", filename: "sadsd", path: "x", mimetype: "jpg", width: "20px", height: "20px" }],
+            message_imgs: [{ _id: "asdasdsa12sd;l1[3pl12=3-asdasdq2", public_id: "sads", version: 123, signature: "xxx", width: 12, height: 12, format: "jpg" }],
             status: "new",
             created_at: new Date().toISOString()
         }

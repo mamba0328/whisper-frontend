@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { ActionButton } from "../../HOC/ActionButton/ActionButton";
+import { ActionButton } from "../../UI/ActionButton/ActionButton";
 import { socket } from "../../../services/SocketService/SocketService";
 
 type Props = {

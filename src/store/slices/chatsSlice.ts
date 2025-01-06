@@ -12,9 +12,7 @@ type Set = (
 
 export const createChatsSlice = (set: Set): ChatsSlice => ({
     allChats: [],
-
     setAllChats: (allChats) => set({ allChats }),
-
     updateChatsPreviewMessage: updateChatsPreviewMessageCurry(set)
 });
 

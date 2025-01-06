@@ -5,7 +5,7 @@ import { socket } from "../../../services/SocketService/SocketService";
 import { useGlobalStore } from "../../../store/store";
 import { CurrentUserIdContext } from "../../../context/CurrentUserIdContext/CurrentUserIdContext";
 
-import { Popup } from "../../HOC/Popup/Popup";
+import { Popup } from "../../UI/Popup/Popup";
 
 import { Chat, Message } from "../../../types/types";
 

@@ -9,11 +9,10 @@ import { MessageList } from "./MessageList/MessageList";
 import { NewMessageForm } from "./NewMessageForm/NewMessageForm";
 import { NewMediaMessageForm } from "./NewMediaMessageForm/NewMediaMessageForm";
 
-import { getUsersChatMessages } from "../../services/UserRequestsService/UserRequestsService";
-
 import { Chat, User, MessagePayload, Message, MessageSeenBy } from "../../types/types";
 import { useGlobalStore } from "../../store/store";
 import ActionPopup from "./ActionPopup/ActionPopup";
+import { saveImg } from "../../services/UserRequestsService/UserRequestsService";
 
 type EditMessageText = Message | null;
 type Media = null | File
@@ -96,18 +95,8 @@ export function ChatWindow ({ chatData } : Props) {
         resetActionPopup();
     };
 
-    const handleSendMessage = (messageBody:string, message_img?:File) => {
+    const handleSendMessage = (messagePayload:MessagePayload) => {
         try {
-            if (!messageBody.trim().length && !messageImg) {
-                return console.log("No empty messages allowed");
-            }
-
-            if (!chatId || !currentUserId) {
-                return console.log("Some key value is missing to send message");
-            }
-
-            const messagePayload:MessagePayload = { body: messageBody, chat_id: chatId, user_id: currentUserId, ...messageImg && { message_img } };
-
             setPendingMessages([messagePayload]);
 
             socket.emit("createMessage", messagePayload, (response:Message) => {
@@ -118,6 +107,39 @@ export function ChatWindow ({ chatData } : Props) {
         } catch (error) {
             console.log(error);
         }
+    };
+
+    const handleSendTextMessage = (messageBody:string) => {
+        if (!messageBody.trim().length && !messageImg) {
+            return console.log("No empty messages allowed");
+        }
+
+        if (!chatId || !currentUserId) {
+            return console.log("Some key value is missing to send message");
+        }
+
+        const messagePayload:MessagePayload = { body: messageBody, chat_id: chatId, user_id: currentUserId };
+        handleSendMessage(messagePayload);
+    };
+
+    const handleSendMediaMessage = async (messageBody:string, imgFormData:FormData) => {
+        if (!messageBody.trim().length && !messageImg) {
+            return console.log("No empty messages allowed");
+        }
+
+        if (!chatId || !currentUserId) {
+            return console.log("Some key value is missing to send message");
+        }
+
+        if (!imgFormData) {
+            return console.log("Img is required");
+        }
+
+        const message_img = await saveImg(imgFormData);
+
+        const messagePayload:MessagePayload = { body: messageBody, chat_id: chatId, user_id: currentUserId, message_img };
+
+        handleSendMessage(messagePayload);
     };
 
     const handleUpdateMessage = async (newMessageBody:string) => {
@@ -156,10 +178,10 @@ export function ChatWindow ({ chatData } : Props) {
     return (
         <section className={"hidden sm:flex flex-col items-center justify-start place-content-center bg-gradient-to-tl from-dark-message-background-color to-secondary-color from-10% border border-dark-message-background-color w-full overflow-hidden"}>
             <ActionPopup handleStartMessageEdit={handleStartMessageEdit} chatData={chatData}/>
-            {messageImg && <NewMediaMessageForm onNewMediaMessageFormClose={() => setMessageImg(null)} handleSendMessage={handleSendMessage} messageImg={messageImg} value={editMessage?.body ?? null} />}
+            {messageImg && <NewMediaMessageForm onNewMediaMessageFormClose={() => setMessageImg(null)} handleSendMessage={handleSendMediaMessage} messageImg={messageImg} value={editMessage?.body ?? null} />}
             <TopNav contact={contact} chatId={chatId}/>
             <MessageList currentUserId={currentUserId} messages={chatMessages} pendingMessages={pendingMessages}/>
-            <NewMessageForm chatId={chatId} handleSendMessage={handleSendMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit} handleFileInput={handleImgInput}/>
+            <NewMessageForm chatId={chatId} handleSendMessage={handleSendTextMessage} handleUpdateMessage={handleUpdateMessage} value={editMessage?.body ?? null} handleCancelEdit={handleCancelEdit} handleFileInput={handleImgInput}/>
         </section>
     );
 }

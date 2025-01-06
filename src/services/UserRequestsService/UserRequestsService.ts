@@ -7,7 +7,9 @@ import {
     SIGN_UP,
     CHAT_MESSAGES,
     MESSAGE_SEEN_BY,
-    MESSAGES_IMGS
+    MESSAGES_IMGS,
+    CLOUDINARY_STORAGE,
+    CLOUDINARY_SIGNATURE
 } from "./consts/UserRequestRoutes";
 
 import {
@@ -17,11 +19,10 @@ import {
     Chat,
     AxiosQuery,
     Message,
-    MessagePayload,
     MessageSeenBy,
-    MessageSeenByPayload
+    MessageSeenByPayload, CloudinaryResponse, SignatureResponse
 } from "../../types/types";
-import { AxiosRequestConfig } from "axios";
+import axios from "axios";
 
 
 export const signIn = async (payload:SignInPayload):Promise<string | null> => {
@@ -86,3 +87,18 @@ export const viewMessage = async (messageViewByPayload: MessageSeenByPayload):Pr
 
     return data;
 };
+
+export const getSignature = async (params?:AxiosQuery):Promise<SignatureResponse> => {
+    const res = await get(`${CLOUDINARY_SIGNATURE}`, { params });
+
+    return res.data as SignatureResponse;
+};
+
+export const saveImg = async (formData:FormData):Promise<CloudinaryResponse> => {
+    const res = await axios.post(CLOUDINARY_STORAGE, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+
+    return res.data as CloudinaryResponse;
+};
+

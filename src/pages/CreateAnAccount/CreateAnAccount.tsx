@@ -1,9 +1,9 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Input } from "../../components/HOC/Input/Input";
-import { PasswordInput } from "../../components/HOC/PasswordInput/PasswordInput";
-import { Button } from "../../components/HOC/Button/Button";
+import { Input } from "../../components/UI/Input/Input";
+import { PasswordInput } from "../../components/UI/PasswordInput/PasswordInput";
+import { Button } from "../../components/UI/Button/Button";
 
 import { signUp } from "../../services/UserRequestsService/UserRequestsService";
 

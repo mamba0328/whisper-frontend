@@ -40,7 +40,7 @@ export type UserPayload = {
 export type MessagePayload = {
     user_id: string | null,
     chat_id: string | null,
-    message_img?: File,
+    message_img?: CloudinaryResponse,
     body: string,
 }
 
@@ -72,14 +72,23 @@ export type Message = {
     updated_at?: string,
 }
 
+export type SignatureResponse = {
+    timestamp: string,
+    signature: string
+}
+
+export type CloudinaryResponse = {
+    public_id: string,
+    version: number,
+    signature: string,
+    width: number,
+    height: number,
+    format: string,
+}
+
 export type MessageImg = {
     _id: string,
-    path: string,
-    filename: string,
-    mimetype: string,
-    width: string,
-    height: string,
-}
+} & CloudinaryResponse
 
 export type ChatPayload = {
     chat_users: string,
@@ -107,7 +116,7 @@ export type AxiosQuery = {
     chat_id?:string,
 }
 
-export type Typist = { // Contact writes in chat right now
+export type Typist = { // Contact that is writing in chat right now
     user_id: string,
     chat_id: string,
 }
